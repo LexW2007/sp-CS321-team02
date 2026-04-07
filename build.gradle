@@ -1,0 +1,227 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+plugins {
+    id 'java'
+}
+
+group 'cs321'
+version '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.36.0.3'
+
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+task createJarSSHDataWrangler(type: Jar) {
+    group = 'Run'
+    description = 'create build/libs/SSHDataWrangler.jar'
+
+    from(sourceSets.main.output) {
+        include "cs321/create/**"
+    }
+
+    manifest {
+        attributes 'Implementation-Title': 'SSHDataWrangler',
+                'Implementation-Version': archiveVersion,
+                'Main-Class': 'cs321.create.SSHDataWrangler'
+    }
+    archiveBaseName = 'SSHDataWrangler'
+    archiveVersion = ''
+
+    // the duplicatesStrategy is required by Gradle 7
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE //allow duplicate *.class files in the jar
+
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+
+task createJarSSHCreateBTree(type: Jar) {
+    group = 'Run'
+    description = 'create build/libs/SSHCreateBTree.jar'
+
+    from(sourceSets.main.output) {
+        include "cs321/create/**"
+    }
+
+    manifest {
+        attributes 'Implementation-Title': 'SSHCreateBTree',
+                'Implementation-Version': archiveVersion,
+                'Main-Class': 'cs321.create.SSHCreateBTree'
+    }
+    archiveBaseName = 'SSHCreateBTree'
+    archiveVersion = ''
+
+    // the duplicatesStrategy is required by Gradle 7
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE //allow duplicate *.class files in the jar
+
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task createJarSSHSearchBTree(type: Jar) {
+    group = 'Run'
+    description = 'create build/libs/SSHSearchBTree.jar'
+
+    from(sourceSets.main.output) {
+        include "cs321/search/**"
+    }
+
+    manifest {
+        attributes 'Implementation-Title': 'SSHSearchBTree',
+                'Implementation-Version': archiveVersion,
+                'Main-Class': 'cs321.search.SSHSearchBTree'
+    }
+    archiveBaseName = 'SSHSearchBTree'
+    archiveVersion = ''
+
+    // the duplicatesStrategy is required by Gradle 7
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE //allow duplicate *.class files in the jar
+
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task createJarSSHSearchDatabase(type: Jar) {
+    group = 'Run'
+    description = 'create build/libs/SSHSearchDatabase.jar'
+
+    from(sourceSets.main.output) {
+        include "cs321/search/**"
+    }
+
+    manifest {
+        attributes 'Implementation-Title': 'SSHSearchDatabase',
+                'Implementation-Version': archiveVersion,
+                'Main-Class': 'cs321.search.SSHSearchDatabase'
+    }
+    archiveBaseName = 'SSHSearchDatabase'
+    archiveVersion = ''
+
+    // the duplicatesStrategy is required by Gradle 7
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE //allow duplicate *.class files in the jar
+
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+tasks.createJarSSHDataWrangler.finalizedBy('printInstructionsToRunJarSSHDataWrangler')
+
+task printInstructionsToRunJarSSHDataWrangler {
+    doLast {
+        println ''
+        println '------------------------------------------------------------'
+        println 'The SSHDataWrangler.jar was created successfully. Run:'
+        println '$ java -jar build/libs/SSHDataWrangler.jar <arguments>'
+        println '------------------------------------------------------------'
+        println ''
+    }
+
+    onlyIf {
+        tasks.createJarSSHDataWrangler.state.failure == null
+    }
+}
+
+
+tasks.createJarSSHCreateBTree.finalizedBy('printInstructionsToRunJarSSHCreateBTree')
+
+task printInstructionsToRunJarSSHCreateBTree {
+    doLast {
+        println ''
+        println '------------------------------------------------------------'
+        println 'The SSHCreateBTree.jar was created successfully. Run:'
+        println '$ java -jar build/libs/SSHCreateBTree.jar <arguments>'
+        println '------------------------------------------------------------'
+        println ''
+    }
+
+    onlyIf {
+        tasks.createJarSSHCreateBTree.state.failure == null
+    }
+}
+
+tasks.createJarSSHSearchBTree.finalizedBy('printInstructionsToRunJarSSHSearchBTree')
+
+task printInstructionsToRunJarSSHSearchBTree {
+    doLast {
+        println ''
+        println '------------------------------------------------------------'
+        println 'The SSHSearchBTree.jar was created successfully. Run:'
+        println '$ java -jar build/libs/SSHSearchBTree.jar <arguments>'
+        println '------------------------------------------------------------'
+        println ''
+    }
+
+    onlyIf {
+        tasks.createJarSSHSearchBTree.state.failure == null
+    }
+}
+
+tasks.createJarSSHSearchDatabase.finalizedBy('printInstructionsToRunJarSSHSearchDatabase')
+
+task printInstructionsToRunJarSSHSearchDatabase {
+    doLast {
+        println ''
+        println '------------------------------------------------------------'
+        println 'The SSHSearchDatabase.jar was created successfully. Run:'
+        println '$ java -jar build/libs/SSHSearchDatabase.jar <arguments>'
+        println '------------------------------------------------------------'
+        println ''
+    }
+
+    onlyIf {
+        tasks.createJarSSHSearchDatabase.state.failure == null
+    }
+}
+
+// When running
+// `$ ./gradlew test`
+// print to console the test outcome and a summary of the tests
+// Source:
+//   https://stackoverflow.com/questions/3963708/gradle-how-to-display-test-results-in-the-console-in-real-time
+tasks.withType(Test) {
+    testLogging {
+        // set options for log level LIFECYCLE
+        events TestLogEvent.FAILED,
+               TestLogEvent.PASSED,
+               TestLogEvent.SKIPPED,
+               TestLogEvent.STANDARD_OUT
+        exceptionFormat TestExceptionFormat.FULL
+        showExceptions true
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events TestLogEvent.STARTED,
+                   TestLogEvent.FAILED,
+                   TestLogEvent.PASSED,
+                   TestLogEvent.SKIPPED,
+                   TestLogEvent.STANDARD_ERROR,
+                   TestLogEvent.STANDARD_OUT
+            exceptionFormat TestExceptionFormat.FULL
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
+}

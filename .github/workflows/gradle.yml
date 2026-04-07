@@ -1,0 +1,71 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+# Use GitHub Actions CI to verify successful Gradle builds on:
+# - Java 8 (LTS)
+# - Java 11 (LTS)
+# - Java 17 (LTS; officially supported since Gradle 7.3)
+# - Java 21 (LTS; officially supported since Gradle 8.4)
+# - Java 22 (deprecated; officially supported since Gradle 8.8)
+# - Java 23 (deprecated; officially supported since Gradle 8.10)
+# - Java 24 (deprecated; officially supported since Gradle 8.14)
+# - Java 25 (current; latest LTS; partially supported since Gradle 8.14.4)
+#   - NOTE: Java 25 will *NOT* be officially (fully) supported in Gradle 8,
+#           see https://github.com/gradle/gradle/issues/35111
+#   - NOTE: Java 25 is officially supported since Gradle 9.1, but Gradle 9 is backward incompatible with Gradle 8,
+#           and requires Java 17+ to run. In other words, if we switch to Gradle 9, then this project will
+#           no longer work with Java 8 and Java 11
+# - Java 26 (to be released in March 2026; to be deprecated in September 2026; not officially supported by Gradle)
+# - Java 27 (to be released in September 2026; to be deprecated in March 2027; not officially supported by Gradle)
+# - Java 28 (to be released in March 2027; to be deprecated in September 2027; not officially supported by Gradle)
+# - Java 29 (LTS; to be released in September 2027; not officially supported by Gradle)
+# - Java 30 (to be released in March 2028; to be deprecated in September 2028; not officially supported by Gradle)
+
+name: CS321_Cybersecurity CI with Gradle
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # This project is tested against all supported LTS versions
+        #
+        # For your team, you can keep only one version (i.e., the one every team member is using locally)
+        # in order to reduce the number of minutes used by GitHub Actions
+        java: [ '8', '11', '17', '21', '25' ]
+    name: Java version ${{ matrix.Java }}
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK ${{ matrix.Java }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ matrix.java }}
+        # the distribution can be either 'adopt' or 'zulu'
+        distribution: 'zulu'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+      # Skip running tests, as this startup code intentionally
+      # contains failing tests that are used as templates.
+      #
+      # For your team, you can enable running these tests
+      # by uncommenting the next two lines
+#    - name: Run all jUnit tests with Gradle
+#      run: ./gradlew test
+    - name: Create jar SSHDataWrangler with Gradle
+      run: ./gradlew createJarSSHDataWrangler
+    - name: Create jar SSHCreateBTree with Gradle
+      run: ./gradlew createJarSSHCreateBTree
+    - name: Create jar SSHSearchBTree with Gradle
+      run: ./gradlew createJarSSHSearchBTree
+    - name: Create jar SSHSearchDatabase with Gradle
+      run: ./gradlew createJarSSHSearchDatabase

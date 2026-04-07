@@ -1,0 +1,24 @@
+# Java
+*.class
+*.jar
+
+# Eclipse
+bin/
+
+#IntelliJ
+.idea/
+out/
+*.iml
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# SQLite database files
+*.sqlite3
+*.db
+
+.DS_Store
+SSH*btree*
+dumps/dump-*

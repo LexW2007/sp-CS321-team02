@@ -208,13 +208,35 @@ public class BTree implements BTreeInterface
     /** @inheritDoc */
     @Override
     public int getHeight() {
-        return 0;
+        if (size == 0) {
+            return 0; // empty tree has height 0
+        }
+        int height = 0;
+        try {
+            BTreeNode node = diskRead(rootAddress);
+            while (!node.isLeaf) {
+                height++;
+                node = diskRead(node.children[0]); // always go to leftmost child
+            }
+        } catch (IOException e) {
+            // In case of I/O error, we can return -1 or throw a runtime exception
+            return -1;
+        }
+        return height;
     }
 
     /** @inheritDoc */
     @Override
     public void insert(TreeObject obj) throws IOException {
         BTreeNode root = diskRead(rootAddress);
+
+        // If key already exists, increment count and return (size unchanged)
+        TreeObject existing = search(obj.getKey());
+        if (existing != null) {
+            existing.setCount(existing.getCount() + obj.getCount());
+            updateNodeContainingKey(rootAddress, obj.getKey(), existing);
+            return;
+        }
 
         // If root is full, split it
         if (root.numKeys == maxKeys) {
@@ -240,6 +262,30 @@ public class BTree implements BTreeInterface
 
         size++;
     }
+
+    private boolean updateNodeContainingKey(long address, String key, TreeObject updated) throws IOException {
+        BTreeNode node = diskRead(address);
+
+        int i = 0;
+        while (i < node.numKeys && key.compareTo(node.keys[i].getKey()) > 0) {
+            i++;
+        }
+
+        if (i < node.numKeys && key.equals(node.keys[i].getKey())) {
+            node.keys[i] = updated;
+            diskWrite(node);
+            return true;
+        }
+
+        if (!node.isLeaf) {
+            return updateNodeContainingKey(node.children[i], key, updated);
+        } else {
+            return false; // key not found in leaf (should not happen since we checked existence before)
+        }
+    }
+    
+    
+
 
      /** Insert a key into a node that is guaranteed not to be full.
      * If the node is a leaf:
@@ -353,24 +399,70 @@ public class BTree implements BTreeInterface
         numberOfNodes++;
     }
 
-    @Override
+    /** @inheritDoc */
+   @Override
     public void dumpToFile(PrintWriter out) throws IOException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'dumpToFile'");
+        if (size == 0) return;
+        dumpNodeToFile(rootAddress, out);
     }
 
+    private void dumpNodeToFile(long address, PrintWriter out) throws IOException {
+        BTreeNode node = diskRead(address);
+        for (int i = 0; i < node.numKeys; i++) {
+            if (!node.isLeaf) {
+                dumpNodeToFile(node.children[i], out);
+            }
+            if (node.keys[i] != null) {
+                out.println(node.keys[i].getKey() + "," + node.keys[i].getCount());
+            }
+        }
+        if (!node.isLeaf) {
+            dumpNodeToFile(node.children[node.numKeys], out);
+        }
+    }
+
+
+    /** @inheritDoc */
     @Override
     public void dumpToDatabase(String dbName, String tableName) throws IOException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'dumpToDatabase'");
+        String filename = dbName + "_" + tableName + ".csv";
+        try (PrintWriter pw = new PrintWriter(new java.io.FileWriter(filename))) {
+            dumpToFile(pw);
+        }
     }
 
+
+    /** @inheritDoc */
     @Override
     public TreeObject search(String key) throws IOException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'search'");
+        BTreeNode node = diskRead(rootAddress);
+        return searchRecursive(node, key);
     }
 
+    private TreeObject searchRecursive(BTreeNode node, String key) throws IOException {
+        int i = 0;
+
+        // Find the first key greater than or equal to the search key
+        while (i < node.numKeys && key.compareTo(node.keys[i].getKey()) > 0) {
+            i++;
+        }
+
+        // If we found the key, return it
+        if (i < node.numKeys && key.equals(node.keys[i].getKey())) {
+            return node.keys[i];
+        }
+
+        // If this is a leaf node, the key is not found
+        if (node.isLeaf) {
+            return null;
+        }
+
+        // Otherwise, descend into the appropriate child
+        BTreeNode child = diskRead(node.children[i]);
+        return searchRecursive(child, key);
+    }
+
+    /** @inheritDoc */
     @Override
     public void delete(String key) {
         // TODO Auto-generated method stub

@@ -49,7 +49,9 @@ changes were reviewed against the project README and sample result files before 
 
 ### Reflection (Team member name: Lex Watts)
 
-Pending personal reflection from Lex Watts.
+Learned how to create a fully functional B-Tree and how to use 
+SQL databases in tandem with my written B-Tree.
+I also learned proper ways to dump and retrieve file information.
 
 ### Reflection (Team member name: Damian Skeen)
 
@@ -73,5 +75,5 @@ I fixed them one step at a time.
   - GitHub username for Damian Skeen
   - Weekly surveys / teammate evaluations
   - AWS notes and screenshots
-  - Personal reflections for each team member
+  - Personal reflections for Damian Skeen
 - Java is now available in the shell via Homebrew OpenJDK 21 and persisted through `~/.zprofile`.

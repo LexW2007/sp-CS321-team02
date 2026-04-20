@@ -42,6 +42,22 @@ public class SSHSearchDatabase {
         }
     }
 
+    /**
+     * Drop a table if it already exists so repeated create runs replace, rather than
+     * accumulate into, an old checkpoint database.
+     *
+     * @param tableName name of the table to drop
+     * @throws SQLException if a database access error occurs
+     */
+    public void dropTable(String tableName) throws SQLException {
+        String sql = "DROP TABLE IF EXISTS " + tableName + ";";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        }
+    }
+
     /** Insert or update a key into the database
      * @param tableName Name of the table to insert into.
      * @param key The SSH key to insert or update.
@@ -57,6 +73,34 @@ public class SSHSearchDatabase {
             pstmt.setString(1, key);
             pstmt.setLong(2, count);
             pstmt.executeUpdate();
+        }
+    }
+
+    /**
+     * Replace the contents of a table with the given entries in a single transaction.
+     *
+     * @param tableName name of the table to populate
+     * @param entries keys and counts to write
+     * @throws SQLException if a database access error occurs
+     */
+    public void replaceTableContents(String tableName, List<TreeObject> entries) throws SQLException {
+        String sql = "INSERT INTO " + tableName + " (key, count) VALUES (?, ?);";
+
+        dropTable(tableName);
+        createTable(tableName);
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false);
+
+            for (TreeObject entry : entries) {
+                pstmt.setString(1, entry.getKey());
+                pstmt.setLong(2, entry.getCount());
+                pstmt.addBatch();
+            }
+
+            pstmt.executeBatch();
+            conn.commit();
         }
     }
 

@@ -21,4 +21,6 @@ build/
 
 .DS_Store
 SSH*btree*
+!src/main/java/cs321/create/SSHCreateBTree.java
+!src/test/java/cs321/create/SSHCreateBTreeTest.java
 dumps/dump-*

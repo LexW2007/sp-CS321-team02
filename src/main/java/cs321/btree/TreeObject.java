@@ -1,26 +1,27 @@
 package cs321.btree;
 
 /**
- * A class that holds a key value and its count. The key value is a string of up 
+ * A class that holds a key value and its count. The key value is a string of up
  * to 32 characters. The size is limited to simplify storage of a TreeObject on disk.
  * 
  * @author amit, andre, natalie
  */
 public class TreeObject implements Comparable<TreeObject> {
+    private static final int MAX_KEY_LENGTH = 32;
 
     private String key;
     private long count;
 	/**
 	 * Number of bytes needed on disk.
 	 */
-    public static final int BYTES  = 64 + Long.BYTES; 
+    public static final int BYTES  = 32 + Long.BYTES;
 
     /**
      * Create a TreeObject with the given key.
      * @param key
      */
     public TreeObject(String key) {
-        this.key = key;
+        this.key = normalizeKey(key);
         this.count = 1;
     }
 
@@ -30,7 +31,7 @@ public class TreeObject implements Comparable<TreeObject> {
      * @param count
      */
     public TreeObject(String key, long count) {
-        this.key = key;
+        this.key = normalizeKey(key);
         this.count = count;
     }
 
@@ -47,7 +48,19 @@ public class TreeObject implements Comparable<TreeObject> {
      * @param key
      */
     public void setKey(String key) {
-        this.key = key;
+        this.key = normalizeKey(key);
+    }
+
+    private static String normalizeKey(String key) {
+        if (key == null) {
+            return null;
+        }
+
+        if (key.length() <= MAX_KEY_LENGTH) {
+            return key;
+        }
+
+        return key.substring(0, MAX_KEY_LENGTH);
     }
 
     /**

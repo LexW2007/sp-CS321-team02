@@ -57,7 +57,9 @@ Pending personal reflection from Damian Skeen.
 
 ### Reflection (Team member name: Maclean Dunkin)
 
-Pending personal reflection from Maclean Dunkin.
+I learned more about B-Trees and testing.
+Finding bugs was the hard part.
+I fixed them one step at a time.
 
 ## Additional Notes
 

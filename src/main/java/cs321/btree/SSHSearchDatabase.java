@@ -7,7 +7,7 @@ import java.util.List;
 /** Class for managing a simple SQLite database to store SSH keys and their counts.
  * This is a utility class for the SSHSearchBTree program.
  * Used in Checkpoint 1 with fake SSH key data.
- * @author Lex Watts
+ * @author Lex Watts, Maclean Dunkin
  */
 public class SSHSearchDatabase {
 

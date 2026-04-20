@@ -6,7 +6,7 @@
 |-----------|------------|------------------|
 | Watts     | Lennox     | LexW2007         |
 | Skeen     | Damian     | TBD              |
-| Dunkin    | Maclean    | TBD              |
+| Dunkin    | Maclean    | Maclean-D        |
 
 ### Test Results
 
@@ -68,7 +68,7 @@ Pending personal reflection from Maclean Dunkin.
   - Installed OpenJDK 21 and verified the checkpoint-2 dumpfile outputs against the provided
     reference results.
 - External/team inputs still required:
-  - GitHub usernames for Damian Skeen and Maclean Dunkin
+  - GitHub username for Damian Skeen
   - Weekly surveys / teammate evaluations
   - AWS notes and screenshots
   - Personal reflections for each team member

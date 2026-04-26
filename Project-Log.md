@@ -94,16 +94,7 @@
 
 ---
 
-## Sprint 2 (Start - End, 2026)
-
-### Completed Tasks
-
-Sprint 2 entries still need to be backfilled from the GitHub project board history and teammate
-notes. This repo snapshot did not contain reliable issue-to-commit details for that sprint.
-
----
-
-## Sprint 3 (Week of April 14 - April 19, 2026)
+## Sprint 2 (Week of April 14 - April 19, 2026)
 
 ### Completed Tasks
 
@@ -152,3 +143,40 @@ create jar, and verified that all nine checkpoint-2 dump files match the provide
 **Status:** Closed
 
 ---
+
+---
+
+## Sprint 3 (Week of April 14 - April 19, 2026)
+
+### Completed Tasks
+
+#### **Task 13 - Implement Cache 
+
+**Developer:** Damian Skeen ("Co-Pilot assisted")
+**Issue:** https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381788&issue=LexW2007%7Csp-CS321-team02%7C11
+**Description:** Implemented the cache from prject 1 into this project to improve performace and reduce disk reads. 
+**Commit Reference:** Commit 3032a34
+**Status:** In progress
+
+--- 
+
+#### **Task 14 - Pass All Integration Test Scripts 
+
+**Developer:** 
+**Issue:** https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381995&issue=LexW2007%7Csp-CS321-team02%7C14 
+**Description:** 
+**Commit Reference:** 
+**Status:** Open
+
+--- 
+
+#### **Task 15 - Write SSHDataWrangler 
+
+**Developer:** 
+**Issue:** 
+**Description:** 
+**Commit Reference:** 
+**Status:** Open
+
+---
+

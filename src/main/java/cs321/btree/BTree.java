@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /** Class representing a B-Tree stored on disk. The B-Tree supports insertion of SSH keys and their counts,
  * as well as dumping the tree to a file or database. The B-Tree is implemented using a RandomAccessFile
  * to read/write nodes from disk, and each node is represented by the BTreeNode class.
- * @author Lex Watts
+ * @author Lex Watts, Damian Skeen
  */
 public class BTree implements BTreeInterface
 {
@@ -23,6 +23,10 @@ public class BTree implements BTreeInterface
     private long numberOfNodes;     // number of nodes created
     private RandomAccessFile file;
 
+    // cache fields
+    private boolean useCache;
+    private Cache<Long, BTreeNode> cache;
+
     
     /** Construct a BTree with the default degree (t = 2).
     * Used by testCreate() in BTreeTest.
@@ -30,7 +34,7 @@ public class BTree implements BTreeInterface
     * @throws BTreeException If the file cannot be created or written to.
     */
     public BTree(String filename) throws BTreeException {
-        this(2, filename); // default degree = 2
+        this(2, filename, false, 0); // default degree = 2
     }
 
      /** Construct a BTree with a specific degree.
@@ -38,14 +42,22 @@ public class BTree implements BTreeInterface
      * RandomAccessFile for disk storage, and Root node at address 0
      * @param degree Minimum degree t of the BTree.
      * @param filename File used for persistent storage.
+     * @param useCache Whether to enable in-memory caching of nodes.
+     * @param cacheSize Maximum number of nodes to keep in cache (ignored if useCache is false).
      * @throws BTreeException If any I/O error occurs.
      */
-    public BTree(int degree, String filename) throws BTreeException {
+    public BTree(int degree, String filename, boolean useCache, int cacheSize) throws BTreeException {
         try {
             this.degree = resolveDegree(degree);
             this.maxKeys = 2 * this.degree - 1;
             this.maxChildren = 2 * this.degree;
             this.nodeSize = computeNodeSize();
+
+            // Initialize cache if requested
+            this.useCache = useCache;
+            if (useCache && cacheSize > 0) {
+                this.cache = new Cache<>(cacheSize);
+            }
 
             this.file = new RandomAccessFile(filename, "rw");
 
@@ -112,6 +124,11 @@ public class BTree implements BTreeInterface
      * @throws IOException If writing to disk fails.
      */
     private void diskWrite(BTreeNode node) throws IOException {
+        // If caching is enabled, add to cache before writing to disk
+        if (useCache && cache != null) {
+            cache.add(node);
+        }
+        
         file.seek(node.myAddress);
 
         ByteBuffer buffer = ByteBuffer.allocate(nodeSize);
@@ -157,6 +174,15 @@ public class BTree implements BTreeInterface
      * @throws IOException If reading from disk fails.
      */
     private BTreeNode diskRead(long address) throws IOException {
+        //check cache first
+        if (useCache && cache != null) {
+            BTreeNode cachedNode = cache.get(address);
+            if (cachedNode != null) {
+                return cachedNode;
+            }
+        }
+        
+        // Not in cache, read from disk
         file.seek(address);
 
         ByteBuffer buffer = ByteBuffer.allocate(nodeSize);
@@ -189,6 +215,11 @@ public class BTree implements BTreeInterface
         // Read children
         for (int i = 0; i < maxChildren; i++) {
             node.children[i] = buffer.getLong();
+        }
+
+        // Add to cache if enabled
+        if (useCache && cache != null) {
+            cache.add(node);
         }
 
         return node;
@@ -582,5 +613,12 @@ public class BTree implements BTreeInterface
             BTreeNode child = diskRead(node.children[i]);
             inorderTraversalObjects(child, objects);
         }
+    }
+    // Cache stats method for testing and debugging
+    public String getCacheStats() {
+        if (!useCache && cache != null) {
+            return cache.toString();
+        }
+        return "Cache is disabled.";
     }
 }

@@ -157,7 +157,7 @@ public class SSHCreateBTree {
         deleteIfExists(btreeFilename);
 
         // Cache arguments are accepted for CLI compatibility with the project spec.
-        BTree tree = new BTree(actualDegree, btreeFilename);
+        BTree tree = new BTree(actualDegree, btreeFilename, arguments.isUseCache(), arguments.getCacheSize());
         List<String> keys = SSHFileReader.readKeys(arguments.sshFile, arguments.type);
         for (String key : keys) {
             tree.insert(new TreeObject(key));
@@ -170,6 +170,10 @@ public class SSHCreateBTree {
 
         if (arguments.writeDatabase) {
             writeDatabase(sortedObjects, arguments.type);
+        }
+
+        if (arguments.useCache) {
+            System.out.println(tree.getCacheStats());
         }
     }
 

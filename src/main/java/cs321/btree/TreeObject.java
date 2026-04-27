@@ -106,9 +106,5 @@ public class TreeObject implements Comparable<TreeObject> {
     public int compareTo(TreeObject o) {
         return this.key.compareTo(o.getKey());
     }
-
-    public int getFrequency() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFrequency'");
-    }
 }
+

@@ -76,6 +76,10 @@ public class BTree implements BTreeInterface
         }
     }
 
+    public BTree(int degree, String filename) throws BTreeException {
+        this(degree, filename, false, 0);
+    }
+
     /**
      * Resolve a requested degree to the actual degree used internally.
      * A request of 0 means "use the optimal degree that fits in one 4096-byte block".

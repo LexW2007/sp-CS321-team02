@@ -69,6 +69,7 @@ I fixed them one step at a time.
   - Added persisted B-Tree metadata so B-Tree files can be reopened for search.
   - Added `SSHSearchBTree` and completed top-frequency B-Tree query output.
   - Completed `SSHSearchDatabase` top-frequency database search.
+  - Added the optional `SSHDataWrangler` raw-log conversion program and tests.
   - Completed `BTree-Database-Analysis.md`.
   - Added focused unit tests for the checkpoint-2 create path.
   - Verified dump, B-Tree search, and database search outputs against the provided reference

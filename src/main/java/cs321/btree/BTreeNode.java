@@ -11,6 +11,11 @@ public class BTreeNode implements KeyInterface<Long>{
     long[] children;        // size = 2t
     long myAddress;         // byte offset on disk
     
+    /**
+     * Constructor for a node within the BTree
+     * @param degree
+     * @param isLeaf
+     */
     public BTreeNode(int degree, boolean isLeaf) {
         this.isLeaf = isLeaf;
         this.numKeys = 0;
@@ -18,6 +23,7 @@ public class BTreeNode implements KeyInterface<Long>{
         this.children = new long[2 * degree];
     }
 
+    /** returns the key for caching purposes */
     @Override
     public Long getKey() {
         return myAddress; // disk offset is the cache key

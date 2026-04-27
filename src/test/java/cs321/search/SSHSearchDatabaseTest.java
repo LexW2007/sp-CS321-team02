@@ -8,10 +8,17 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+/**
+ * Focused tests for the checkpoint-3 SSHSearchDatabase flow.
+ * @author Lex Watts, Maclean Dunkin
+ */
 public class  SSHSearchDatabaseTest
 {
     private static final String TEST_DATABASE = "Test_SearchDatabase.db";
 
+    /**
+     * Cleans up the test database after each test to ensure a clean state for tests.
+     */
     @After
     public void cleanup() {
         File file = new File(TEST_DATABASE);
@@ -20,6 +27,9 @@ public class  SSHSearchDatabaseTest
         }
     }
 
+    /** 
+     * Creates a test database with the correct search for the top results
+     */
     @Test
     public void testCreateTestDatabaseAndSearchTopResults() throws Exception {
         SSHSearchDatabase database = new SSHSearchDatabase(TEST_DATABASE);

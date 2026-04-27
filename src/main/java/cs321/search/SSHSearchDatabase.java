@@ -4,14 +4,31 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A database for storing and retrieving search results.
+ * 
+ * @author Lex Watts, Maclean Dunkin
+ */
 public class SSHSearchDatabase {
 
     private final Connection connection;
 
+    /**
+     * Constructor for database searcher, creates a valid connection to the SQLite database at the specified file path.
+     * @param dbFile
+     * @throws SQLException
+     */
     public SSHSearchDatabase(String dbFile) throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
     }
 
+    /** 
+     * Searches the specified table for the top keys by frequency, limited to the specified number of results.
+     * @param table
+     * @param topFrequency
+     * @return a list of Result objects containing the key and count for each of the top results
+     * @throws SQLException
+     */
     public List<Result> searchTop(String table, int topFrequency) throws SQLException {
         String sql = "SELECT key, count FROM " + table + " ORDER BY count DESC, key ASC LIMIT ?";
         ArrayList<Result> results = new ArrayList<Result>();
@@ -28,6 +45,10 @@ public class SSHSearchDatabase {
         return results;
     }
 
+    /** 
+     * Creates a test database with sample data.
+     * @throws SQLException
+     */
     public void createTestDatabase() throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("DROP TABLE IF EXISTS acceptedip;");
@@ -45,10 +66,12 @@ public class SSHSearchDatabase {
         }
     }
 
+    /** closes the database connection */
     public void close() throws SQLException {
         connection.close();
     }
 
+    /** main method for the SSHSearchDatabase class */
     public static void main(String[] args) {
         SSHSearchDatabase db = null;
         try {
@@ -77,6 +100,10 @@ public class SSHSearchDatabase {
         }
     }
 
+    /** 
+     * Returns a list of test rows for the database.
+     * @return a list of Result objects
+     */
     private static List<Result> testRows() {
         ArrayList<Result> rows = new ArrayList<Result>();
         rows.add(new Result("Accepted-111.222.107.90", 25));
@@ -107,19 +134,27 @@ public class SSHSearchDatabase {
         return rows;
     }
 
+    /** Inner class representing a search result */
     public static class Result {
         private final String key;
         private final long count;
 
+        /**
+         * Constructor for Result object, takes a key and count as parameters.
+         * @param key
+         * @param count
+         */
         public Result(String key, long count) {
             this.key = key;
             this.count = count;
         }
 
+        // returns key 
         public String getKey() {
             return key;
         }
 
+        // returns count
         public long getCount() {
             return count;
         }

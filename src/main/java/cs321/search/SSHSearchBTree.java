@@ -19,8 +19,10 @@ import java.util.Set;
 
 /**
  * Driver program for searching a persisted SSH B-Tree with a query file.
+ * @author Lex Watts, Maclean Dunkin
  */
 public class SSHSearchBTree {
+    // The supported top frequency values for the --top-frequency argument are 10, 25, and 50.
     private static final Set<Integer> VALID_TOP_FREQUENCIES = new HashSet<Integer>();
 
     static {
@@ -29,6 +31,7 @@ public class SSHSearchBTree {
         VALID_TOP_FREQUENCIES.add(50);
     }
 
+    /** main method for the SSHSearchBTree class */
     public static void main(String[] args) {
         try {
             Arguments parsedArguments = parseArguments(args);
@@ -44,6 +47,12 @@ public class SSHSearchBTree {
         }
     }
 
+    /**
+     * Parses the command-line arguments.
+     * @param args the command-line arguments
+     * @return the parsed arguments
+     * @throws ParseArgumentException if the arguments are invalid
+     */
     public static Arguments parseArguments(String[] args) throws ParseArgumentException {
         Arguments parsedArguments = new Arguments();
         Set<String> seenArguments = new HashSet<String>();
@@ -125,6 +134,13 @@ public class SSHSearchBTree {
         return parsedArguments;
     }
 
+    /**
+     * Searches the B-Tree based on the provided arguments and returns the results.
+     * @param arguments
+     * @return
+     * @throws BTreeException
+     * @throws IOException
+     */
     public static List<TreeObject> searchBTree(Arguments arguments) throws BTreeException, IOException {
         BTree tree = new BTree(arguments.btreeFile, arguments.useCache, arguments.cacheSize);
         try {
@@ -148,6 +164,12 @@ public class SSHSearchBTree {
         }
     }
 
+    /**
+     * Reads the queries from the specified query file.
+     * @param queryFile
+     * @return
+     * @throws IOException
+     */
     private static List<String> readQueries(String queryFile) throws IOException {
         ArrayList<String> queries = new ArrayList<String>();
         try (BufferedReader reader = new BufferedReader(new FileReader(queryFile))) {
@@ -162,6 +184,12 @@ public class SSHSearchBTree {
         return queries;
     }
 
+    /**
+     * Returns the top TreeObject instances by frequency, limited to the specified number of results.
+     * @param results
+     * @param limit
+     * @return
+     */
     private static List<TreeObject> topByFrequency(List<TreeObject> results, int limit) {
         ArrayList<TreeObject> sorted = new ArrayList<TreeObject>(results);
         Collections.sort(sorted, new Comparator<TreeObject>() {
@@ -181,6 +209,12 @@ public class SSHSearchBTree {
         return new ArrayList<TreeObject>(sorted.subList(0, limit));
     }
 
+    /**
+     * Verifies if the file at the specified path exists. 
+     * @param path
+     * @param label
+     * @throws ParseArgumentException
+     */
     private static void verifyFileExists(String path, String label) throws ParseArgumentException {
         File file = new File(path);
         if (!file.isFile()) {
@@ -188,6 +222,10 @@ public class SSHSearchBTree {
         }
     }
 
+    /**
+     * Prints the correct usage to the command line.
+     * @param errorMessage
+     */
     private static void printUsageAndExit(String errorMessage) {
         System.err.println(errorMessage);
         System.err.println("Usage: java -jar build/libs/SSHSearchBTree.jar --cache=<0|1> --degree=<n> " +
@@ -196,6 +234,9 @@ public class SSHSearchBTree {
         System.exit(1);
     }
 
+    /** 
+     * Inner class that holds all arguments.
+     */
     public static class Arguments {
         private boolean useCache;
         private boolean cacheProvided;

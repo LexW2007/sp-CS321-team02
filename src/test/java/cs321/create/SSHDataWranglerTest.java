@@ -15,16 +15,27 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+/**
+ * Focused tests for the checkpoint-3 SSHDataWrangler flow.
+ *  
+ * @author Maclean Dunkin
+ */
 public class SSHDataWranglerTest {
     private static final String RAW_FILE = "Test_SSH_raw_log.txt";
     private static final String WRANGLED_FILE = "Test_SSH_wrangled_log.txt";
 
+    /**
+     * Cleans up test files after each test.
+     */
     @After
     public void cleanup() {
         deleteIfExists(RAW_FILE);
         deleteIfExists(WRANGLED_FILE);
     }
 
+    /**
+     * Tests that the parseArguments method requires both the raw and output files.
+     */
     @Test
     public void testParseArgumentsRequiresRawAndOutputFiles() throws Exception {
         try {
@@ -37,6 +48,22 @@ public class SSHDataWranglerTest {
         }
     }
 
+    /**
+     * Tests that the parseArguments method correctly parses valid arguments.
+     */
+    @Test
+    public void testParseArgumentsCorrectlyParsesValidArguments() throws Exception {
+        SSHDataWrangler.Arguments arguments = SSHDataWrangler.parseArguments(new String[] {
+            "--rawSshFile=" + RAW_FILE,
+            "--sshFile=" + WRANGLED_FILE
+        });
+        assertEquals(RAW_FILE, arguments.getRawSshFile());
+        assertEquals(WRANGLED_FILE, arguments.getSshFile());
+    }
+
+    /**
+     * Tests that the wrangleLine method correctly handles documented raw formats.
+     */
     @Test
     public void testWrangleLineHandlesDocumentedRawFormats() {
         assertEquals(
@@ -69,6 +96,10 @@ public class SSHDataWranglerTest {
         );
     }
 
+    /**
+     * Tests that the wrangle method correctly writes only relevant lines to the output file.
+     * @throws Exception
+    */
     @Test
     public void testWrangleFileWritesOnlyRelevantLines() throws Exception {
         try (PrintWriter writer = new PrintWriter(RAW_FILE)) {
@@ -87,6 +118,12 @@ public class SSHDataWranglerTest {
         assertEquals("12/12 18:46:00 Accepted suyuxin 218.18.43.243", lines.get(2));
     }
 
+    /**
+     * Reads all lines from a file and returns them as a list of strings.
+     * @param path
+     * @return
+     * @throws Exception
+     */
     private List<String> readLines(String path) throws Exception {
         ArrayList<String> lines = new ArrayList<String>();
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
@@ -98,6 +135,10 @@ public class SSHDataWranglerTest {
         return lines;
     }
 
+    /**
+     * Tests that the wrangle method correctly deletes an already existing output file.
+     * @throws Exception
+     */
     private void deleteIfExists(String path) {
         File file = new File(path);
         if (file.exists()) {

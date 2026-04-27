@@ -150,33 +150,32 @@ create jar, and verified that all nine checkpoint-2 dump files match the provide
 
 ### Completed Tasks
 
-#### **Task 13 - Implement Cache 
+#### **Task 13 - Implement Cache
 
 **Developer:** Damian Skeen ("Co-Pilot assisted")
-**Issue:** https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381788&issue=LexW2007%7Csp-CS321-team02%7C11
-**Description:** Implemented the cache from prject 1 into this project to improve performace and reduce disk reads. 
+**Issue:** <https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381788&issue=LexW2007%7Csp-CS321-team02%7C11>
+**Description:** Implemented the cache from prject 1 into this project to improve performace and reduce disk reads.
 **Commit Reference:** Commit 3032a34
 **Status:** In progress
 
---- 
+---
 
-#### **Task 14 - Pass All Integration Test Scripts 
+#### **Task 14 - Pass All Integration Test Scripts
 
-**Developer:** 
-**Issue:** https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381995&issue=LexW2007%7Csp-CS321-team02%7C14 
-**Description:** 
-**Commit Reference:** 
-**Status:** Open
-
---- 
-
-#### **Task 15 - Write SSHDataWrangler 
-
-**Developer:** 
-**Issue:** 
-**Description:** 
-**Commit Reference:** 
-**Status:** Open
+**Developer:** Lex Watts, Maclean Dunkin
+**Issue:** <https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381995&issue=LexW2007%7Csp-CS321-team02%7C14>
+**Description:** Debug and testing for BTree creation, search, and database management.
+**Commit Reference:** Commit 28ce1ac
+**Status:** Closed
 
 ---
 
+#### **Task 15 - Write SSHDataWrangler
+
+**Developer:** Maclean Dunkin
+**Issue:** n/a
+**Description:** Implemented and tested DataWrangler class for database information.
+**Commit Reference:** Commit 3b31c37
+**Status:** Closed
+
+---

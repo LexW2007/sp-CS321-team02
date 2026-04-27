@@ -7,7 +7,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Encapsulates the arguments for the SSHSearchDatabase program.
+ * @author Lex Watts, Maclean Dunkin
+ */
 public class SSHSearchDatabaseArguments {
+    // The supported tree types and their corresponding key formats are as follows:
     private static final Set<String> VALID_TYPES = new HashSet<String>(Arrays.asList(
         "accepted-ip",
         "accepted-time",
@@ -27,17 +32,31 @@ public class SSHSearchDatabaseArguments {
     private final String type;
     private final int topFrequency;
 
+    /** 
+     * Constructor for database search arguments.
+     * @param databaseFile
+     * @param type
+     * @param topFrequency
+     * @throws ParseArgumentException if any of the arguments are invalid`
+     */
     public SSHSearchDatabaseArguments(String databaseFile, String type, int topFrequency) {
         this.databaseFile = databaseFile;
         this.type = type;
         this.topFrequency = topFrequency;
     }
 
+    // Getters for the arguments
     public String getDatabaseFile() { return databaseFile; }
     public String getType() { return type; }
     public int getTopFrequency() { return topFrequency; }
     public String getTableName() { return type.replace("-", ""); }
 
+    /**
+     * Parses the command-line arguments and returns an SSHSearchDatabaseArguments object.
+     * @param args
+     * @return
+     * @throws ParseArgumentException
+     */
     public static SSHSearchDatabaseArguments parse(String[] args) throws ParseArgumentException {
         String databaseFile = null;
         String type = null;

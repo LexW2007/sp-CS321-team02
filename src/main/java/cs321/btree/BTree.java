@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /** Class representing a B-Tree stored on disk. The B-Tree supports insertion of SSH keys and their counts,
  * as well as dumping the tree to a file or database. The B-Tree is implemented using a RandomAccessFile
  * to read/write nodes from disk, and each node is represented by the BTreeNode class.
- * @author Lex Watts, Damian Skeen
+ * @author Lex Watts, Damian Skeen, Maclean Dunkin
  */
 public class BTree implements BTreeInterface, AutoCloseable
 {
@@ -78,10 +78,23 @@ public class BTree implements BTreeInterface, AutoCloseable
         }
     }
 
+    /**
+     * Constructs a BTree with a specific degree and given filename.
+     * @param degree
+     * @param filename
+     * @throws BTreeException
+     */
     public BTree(int degree, String filename) throws BTreeException {
         this(degree, filename, false, 0);
     }
 
+    /**
+     * Constructs a BTree with a given filename and cache settings.
+     * @param filename
+     * @param useCache
+     * @param cacheSize
+     * @throws BTreeException
+     */
     public BTree(String filename, boolean useCache, int cacheSize) throws BTreeException {
         try {
             initializeCache(useCache, cacheSize);
@@ -92,6 +105,10 @@ public class BTree implements BTreeInterface, AutoCloseable
         }
     }
 
+    /** Initialize the cache for storing BTree nodes in memory.
+     * @param useCache Whether to enable in-memory caching of nodes.
+     * @param cacheSize Maximum number of nodes to keep in cache (ignored if useCache is false).
+     */
     private void initializeCache(boolean useCache, int cacheSize) {
         this.useCache = useCache;
         this.cache = null;
@@ -257,6 +274,12 @@ public class BTree implements BTreeInterface, AutoCloseable
         return computeNodeSizeForDegree(degree);
     }
 
+    /**
+     * Compute the node size for a given degree. This is used to determine the optimal 
+     * degree that fits in a 4096-byte block.
+     * @param degree
+     * @return
+     */
     private static int computeNodeSizeForDegree(int degree) {
         int maxKeysForDegree = 2 * degree - 1;
         int maxChildrenForDegree = 2 * degree;
@@ -272,6 +295,10 @@ public class BTree implements BTreeInterface, AutoCloseable
         return size;
     }
 
+    /**
+     * Write the BTree metadata to the beginning of the file.
+     * @throws IOException
+     */
     private void writeMetadata() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(METADATA_BYTES);
         buffer.putInt(METADATA_MAGIC);
@@ -287,6 +314,11 @@ public class BTree implements BTreeInterface, AutoCloseable
         file.write(buffer.array());
     }
 
+    /**
+     * Read the BTree metadata from the beginning of the file and initialize the tree's fields.
+     * @throws IOException
+     * @throws BTreeException
+     */
     private void readMetadata() throws IOException, BTreeException {
         if (file.length() < METADATA_BYTES) {
             throw new BTreeException("BTree file is missing metadata");
@@ -394,6 +426,14 @@ public class BTree implements BTreeInterface, AutoCloseable
         writeMetadata();
     }
 
+    /**
+     * Recursively search for the node containing the given key and update it with the new value.
+     * @param address
+     * @param key
+     * @param updated
+     * @return
+     * @throws IOException
+     */
     private boolean updateNodeContainingKey(long address, String key, TreeObject updated) throws IOException {
         BTreeNode node = diskRead(address);
 
@@ -415,9 +455,6 @@ public class BTree implements BTreeInterface, AutoCloseable
         }
     }
     
-    
-
-
      /** Insert a key into a node that is guaranteed not to be full.
      * If the node is a leaf:
      *   - Shift keys to make room
@@ -537,6 +574,13 @@ public class BTree implements BTreeInterface, AutoCloseable
         dumpNodeToFile(rootAddress, out);
     }
 
+    /**
+     * Recursively traverse the B-Tree in sorted order and write each key/count pair to the output.
+     * Each line of output will be in the format: "key,count"
+     * @param address
+     * @param out
+     * @throws IOException
+     */
     private void dumpNodeToFile(long address, PrintWriter out) throws IOException {
         BTreeNode node = diskRead(address);
         for (int i = 0; i < node.numKeys; i++) {
@@ -570,6 +614,13 @@ public class BTree implements BTreeInterface, AutoCloseable
         return searchRecursive(node, key);
     }
 
+    /** 
+     * Recursively search for the given key starting from the specified node.
+     * @param node The node to start the search from.
+     * @param key The key to search for.
+     * @throws IOException If disk I/O fails during the search.
+     * @return The TreeObject containing the key and count if found, or null if not found.
+     */
     private TreeObject searchRecursive(BTreeNode node, String key) throws IOException {
         int i = 0;
 
@@ -621,7 +672,6 @@ public class BTree implements BTreeInterface, AutoCloseable
 
     /**
      * Perform an inorder traversal of the B-Tree to retrieve all stored objects in sorted order.
-     *
      * @return sorted list of TreeObjects from the tree
      * @throws IOException if disk I/O fails
      */
@@ -667,6 +717,12 @@ public class BTree implements BTreeInterface, AutoCloseable
         }
     }
 
+    /**
+     * Recursive helper method for inorder traversal of the B-Tree to retrieve TreeObjects.
+     * @param node
+     * @param objects
+     * @throws IOException
+     */
     private void inorderTraversalObjects(BTreeNode node, ArrayList<TreeObject> objects) throws IOException {
         int i;
 
@@ -684,7 +740,8 @@ public class BTree implements BTreeInterface, AutoCloseable
             inorderTraversalObjects(child, objects);
         }
     }
-    // Cache stats method for testing and debugging
+
+    /** Cache stats method for testing and debugging */
     public String getCacheStats() {
         if (useCache && cache != null) {
             return cache.toString();
@@ -692,6 +749,7 @@ public class BTree implements BTreeInterface, AutoCloseable
         return "Cache is disabled.";
     }
 
+    /** @inheritDoc */
     @Override
     public void close() throws IOException {
         if (file != null) {

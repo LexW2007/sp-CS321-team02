@@ -1,6 +1,12 @@
 package cs321.btree;
 import java.util.LinkedList;
 
+/**
+ * Cache implementation using a LinkedList to store values. 
+ * Implements a Least Recently Used (LRU) eviction policy.
+ * 
+ * @author Damian Skeen
+ */
 public class Cache<K, V extends KeyInterface<K>> implements CacheInterface<K, V>
 {
     private LinkedList<V> cache;
@@ -8,6 +14,9 @@ public class Cache<K, V extends KeyInterface<K>> implements CacheInterface<K, V>
     private int numReferences;
     private int numHits;
 
+    /** Constructor for the Cache class.
+     * @param maxSize The maximum number of entries the cache can hold.
+     */
     public Cache(int maxSize)
     {
         this.maxSize = maxSize;
@@ -16,6 +25,7 @@ public class Cache<K, V extends KeyInterface<K>> implements CacheInterface<K, V>
         this.numHits = 0;
     }
 
+    /** @inheritDoc */
     @Override
     public V get(K key)
     {
@@ -37,6 +47,7 @@ public class Cache<K, V extends KeyInterface<K>> implements CacheInterface<K, V>
         return null; //miss
     }
 
+    /** @inheritDoc */
     @Override
     public V add(V value)
     { //First check for duplicate values
@@ -61,6 +72,7 @@ public class Cache<K, V extends KeyInterface<K>> implements CacheInterface<K, V>
         return evicted;
     }
 
+    /** @inheritDoc */
     @Override
     public V remove(K key) 
     {
@@ -76,6 +88,7 @@ public class Cache<K, V extends KeyInterface<K>> implements CacheInterface<K, V>
         return null;
     }
 
+    /** @inheritDoc */
     @Override
     public void clear() 
     {
@@ -85,6 +98,7 @@ public class Cache<K, V extends KeyInterface<K>> implements CacheInterface<K, V>
         numHits = 0;
     }
 
+    /** Creates a string representation of the cache */
     @Override
     public String toString()
     {

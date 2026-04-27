@@ -13,8 +13,10 @@ import java.util.Set;
 
 /**
  * Extracts keys from the wrangled SSH log file used to build the B-Tree.
+ * @author Damian Skeen, Maclean Dunkin
  */
 public class SSHFileReader {
+    // The supported tree types and their corresponding key formats are as follows:
     private static final Set<String> VALID_TYPES = new HashSet<>(Arrays.asList(
         "accepted-ip",
         "accepted-time",
@@ -27,12 +29,12 @@ public class SSHFileReader {
         "user-ip"
     ));
 
+    // Prevent instantiation of this utility class
     private SSHFileReader() {
     }
 
     /**
      * Reads a wrangled SSH log and extracts the ordered keys for a single tree type.
-     *
      * @param sshFile path to the wrangled log file
      * @param type tree type to extract
      * @return list of extracted keys
@@ -58,7 +60,6 @@ public class SSHFileReader {
 
     /**
      * Extracts the key for one specific tree type from a wrangled log line.
-     *
      * @param line wrangled SSH log line
      * @param type requested tree type
      * @return extracted key, or null when the line does not match the requested type
@@ -92,20 +93,41 @@ public class SSHFileReader {
         }
     }
 
+    /**
+     * Validates the tree type.
+     * @param type the tree type to validate
+     * @throws ParseArgumentException if the type is invalid
+     */
     private static void validateType(String type) throws ParseArgumentException {
         if (!VALID_TYPES.contains(type)) {
             throw new ParseArgumentException("Unsupported tree type: " + type);
         }
     }
 
+    /**
+     * Checks if the action is a reverse address action.
+     * @param action the action to check
+     * @return true if the action is a reverse address action, false otherwise
+     */
     private static boolean isReverseAddressAction(String action) {
         return action.equals("reverse") || action.equals("Address");
     }
 
+    /**
+     * Checks if the action is a user-related action.
+     * @param action the action to check
+     * @return true if the action is a user-related action, false otherwise
+     */
     private static boolean isUserAction(String action) {
         return action.equals("Accepted") || action.equals("Invalid") || action.equals("Failed");
     }
 
+    /**
+     * Parses a wrangled SSH log line into its component parts.
+     * @param line the log line to parse
+     * @return the parsed log entry
+     * @throws ParseArgumentException if the line is invalid
+     */
     private static SSHLogEntry parseEntry(String line) throws ParseArgumentException {
         String trimmedLine = line == null ? "" : line.trim();
         if (trimmedLine.isEmpty()) {
@@ -124,13 +146,16 @@ public class SSHFileReader {
         return new SSHLogEntry(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
     }
 
+    /**
+     * Represents a parsed entry from the wrangled SSH log.
+     */
     private static final class SSHLogEntry {
         private final String date;
         private final String time;
         private final String action;
         private final String subject;
         private final String address;
-
+        // constructor for the SSHLogEntry class
         private SSHLogEntry(String date, String time, String action, String subject, String address) {
             this.date = date;
             this.time = time;
@@ -138,7 +163,7 @@ public class SSHFileReader {
             this.subject = subject;
             this.address = address;
         }
-
+        // helper method to get a time value from the SSHLogEntry in HH:MM format
         private String getHourMinute() throws ParseArgumentException {
             String[] timeParts = time.split(":");
             if (timeParts.length < 2) {

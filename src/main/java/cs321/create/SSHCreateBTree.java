@@ -18,8 +18,10 @@ import java.util.Set;
 
 /**
  * Driver program for creating a B-Tree from the wrangled SSH log file.
+ * @author Lex Watts, Damian Skeen, Maclean Dunkin
  */
 public class SSHCreateBTree {
+    // Valid tree types for the create flow.
     private static final Set<String> VALID_TYPES = new HashSet<>(Arrays.asList(
         "accepted-ip",
         "accepted-time",
@@ -32,6 +34,7 @@ public class SSHCreateBTree {
         "user-ip"
     ));
 
+    /** Main method for the SSHCreateBTree program. */
     public static void main(String[] args) throws Exception {
         try {
             Arguments parsedArguments = parseArguments(args);
@@ -46,7 +49,6 @@ public class SSHCreateBTree {
 
     /**
      * Process command line arguments.
-     *
      * @param args command line arguments passed to the main method
      * @return validated arguments for the create flow
      * @throws ParseArgumentException when the command line is invalid
@@ -180,6 +182,12 @@ public class SSHCreateBTree {
         }
     }
 
+    /** Writes the sorted objects to a dump file. 
+     * @param sortedObjects the list of TreeObject instances to write to the dump file
+     * @param type the tree type, used to construct the dump file name
+     * @param requestedDegree the requested degree, used to construct the dump file name
+     * @throws IOException if there is an error writing the dump file
+     */
     private static void writeDumpFile(List<TreeObject> sortedObjects, String type, int requestedDegree)
         throws IOException {
         String dumpFilename = "dump-" + type + "." + requestedDegree + ".txt";
@@ -191,6 +199,12 @@ public class SSHCreateBTree {
         }
     }
 
+    /**
+     * Writes the sorted objects to the database, replacing any existing contents for the tree type.
+     * @param sortedObjects the list of TreeObject instances to write to the database
+     * @param type the tree type, used to construct the database table name
+     * @throws SQLException if there is an error writing to the database
+     */
     private static void writeDatabase(List<TreeObject> sortedObjects, String type) throws SQLException {
         SSHSearchDatabase database = new SSHSearchDatabase("SSHLogDB.db");
         try {
@@ -200,6 +214,11 @@ public class SSHCreateBTree {
         }
     }
 
+    /** 
+     * Deletes the file at the specified path if it exists, throwing an exception if the file cannot be deleted.
+     * @param path the path of the file to delete if it exists
+     * @throws IOException if the file exists but cannot be deleted
+     */
     private static void deleteIfExists(String path) throws IOException {
         File file = new File(path);
         if (file.exists() && !file.delete()) {
@@ -207,13 +226,19 @@ public class SSHCreateBTree {
         }
     }
 
+    /** 
+     * Builds the filename for the B-Tree file based on the SSH file, tree type, and requested degree.
+     * @param sshFile the path to the SSH file
+     * @param type the tree type
+     * @param requestedDegree the requested degree
+     * @return the constructed B-Tree filename
+     */
     private static String buildBTreeFilename(String sshFile, String type, int requestedDegree) {
         return new File(sshFile).getName() + ".ssh.btree." + type + "." + requestedDegree;
     }
 
     /**
      * Print usage message and exit.
-     *
      * @param errorMessage the error message for proper usage
      */
     private static void printUsageAndExit(String errorMessage) {

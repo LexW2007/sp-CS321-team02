@@ -24,19 +24,7 @@ scripts.
 
 ### AWS Notes
 
-Brief reflection on your experience with running your code on AWS.
-
 Pending team input from the required AWS run and screenshots.
-
-### Reflection
-
-The first subsection below should include how the team used AI tools to help with the
-project,including which tools were used, how they were used, and any benefits or challenges
-encountered.
-
-Provide a reflection by each of the team member (in a separate subsection for each team member) on
-their experience with the project, including what they learned, what they found challenging, and how
-they overcame those challenges.
 
 ### AI Usage
 
@@ -47,9 +35,11 @@ changes were reviewed against the project README and sample result files before 
 
 ### Reflection (Team member name: Lex Watts)
 
-Learned how to create a fully functional B-Tree and how to use 
+Learned how to create a fully functional B-Tree and how to use
 SQL databases in tandem with my written B-Tree.
 I also learned proper ways to dump and retrieve file information.
+Later in the project I became more familiar with using AI assistants to
+debug and test code funtionality.
 
 ### Reflection (Team member name: Damian Skeen)
 

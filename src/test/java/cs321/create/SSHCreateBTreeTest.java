@@ -16,7 +16,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Focused tests for the checkpoint-2 SSHCreateBTree flow.
+ * Focused tests for the checkpoint-3 SSHCreateBTree flow.
+ * @author Lex Watts, Damian Skeen, Maclean Dunkin
  */
 public class SSHCreateBTreeTest {
     private static final String TEST_SSH_FILE = "Test_SSH_log.txt";
@@ -24,6 +25,9 @@ public class SSHCreateBTreeTest {
     private static final String DUMP_FILE = "dump-accepted-ip.0.txt";
     private static final String DATABASE_FILE = "SSHLogDB.db";
 
+    /**
+     * Cleans up any files created during testing to ensure a clean slate for each test case.
+     */
     @After
     public void cleanup() {
         deleteIfExists(TEST_SSH_FILE);
@@ -32,11 +36,19 @@ public class SSHCreateBTreeTest {
         deleteIfExists(DATABASE_FILE);
     }
 
+    /**
+     * Tests that when a degree of zero is specified, the createBTree method resolves it to an optimal degree.
+     * @throws Exception
+     */
     @Test
     public void testResolveDegreeZeroUsesOptimalBlockSizedDegree() throws Exception {
         assertEquals(43, BTree.resolveDegree(0));
     }
 
+    /**
+     * Extracts the key from provided SSH log lines and verifes that correct keys are extracted.
+     * @throws Exception
+     */
     @Test
     public void testExtractKeyMappings() throws Exception {
         assertEquals(
@@ -65,6 +77,9 @@ public class SSHCreateBTreeTest {
         );
     }
 
+    /** 
+     * Tests that the correct arguments are given when the cache is enabled.
+     */
     @Test
     public void testParseArgumentsRequiresCacheSizeWhenCacheEnabled() throws Exception {
         try {
@@ -81,6 +96,10 @@ public class SSHCreateBTreeTest {
         }
     }
 
+    /**
+     * Tests that the createBTree method correctly writes the B-tree dump and database.
+     * @throws Exception
+     */
     @Test
     public void testCreateBTreeWritesDumpAndDatabase() throws Exception {
         writeSampleSshFile();
@@ -105,6 +124,10 @@ public class SSHCreateBTreeTest {
         assertEquals(2, database.getCount("acceptedip", "Accepted-119.137.62.142"));
     }
 
+    /**
+     * Writes a sample SSH log file for testing purposes.
+     * @throws IOException
+     */
     private void writeSampleSshFile() throws IOException {
         try (PrintWriter writer = new PrintWriter(TEST_SSH_FILE)) {
             writer.println("12/10 06:55:46 reverse ns.marryaldkfaczcz.com 173.234.31.186");
@@ -115,6 +138,12 @@ public class SSHCreateBTreeTest {
         }
     }
 
+    /**
+     * Reads the first line from a file.
+     * @param path the path to the file
+     * @return the first line of the file
+     * @throws IOException if an I/O error occurs
+     */
     private String readFirstLine(String path) throws IOException {
         java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(path));
         try {
@@ -124,6 +153,10 @@ public class SSHCreateBTreeTest {
         }
     }
 
+    /**
+     * Deletes a file if it exists to ensure a clean state for tests.
+     * @param path
+     */
     private void deleteIfExists(String path) {
         File file = new File(path);
         if (file.exists()) {

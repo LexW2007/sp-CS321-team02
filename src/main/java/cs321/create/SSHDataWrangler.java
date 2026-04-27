@@ -15,17 +15,20 @@ import java.util.regex.Pattern;
 
 /**
  * The driver class for wrangling a raw SSH log file into a useful form.
- *
- * @author
+ * @author Maclean Dunkin
  */
 public class SSHDataWrangler {
+    /** A regular expression for matching the syslog prefix of a log line. */
     private static final Pattern SYSLOG_PREFIX = Pattern.compile(
         "^(\\w{3})\\s+(\\d{1,2})\\s+(\\d{2}:\\d{2}:\\d{2})\\s+\\S+\\s+sshd\\[\\d+\\]:\\s+(.+)$"
     );
+
+    /** Expression for matching the demo prefix of a log line. */
     private static final Pattern DEMO_PREFIX = Pattern.compile(
         "^(\\d{1,2}/\\d{1,2})\\s+(\\d{1,2}:\\d{2})(am|pm)\\s+SSHD\\s+Lab-id:\\[[a-z]+\\]\\s+---\\s+(.+)$",
         Pattern.CASE_INSENSITIVE
     );
+
     private static final Pattern ACCEPTED = Pattern.compile("^Accepted password for (\\S+) from \\[?([\\d.]+)\\]?");
     private static final Pattern INVALID = Pattern.compile("^Invalid user (\\S+) from \\[?([\\d.]+)\\]?");
     private static final Pattern FAILED_INVALID = Pattern.compile("^Failed password for invalid user (\\S+) from \\[?([\\d.]+)\\]?");
@@ -33,6 +36,7 @@ public class SSHDataWrangler {
     private static final Pattern REVERSE = Pattern.compile(
         "^reverse mapping checking getaddrinfo for .+ \\[?([\\d.]+)\\]? failed"
     );
+
     private static final Pattern ADDRESS = Pattern.compile("^Address \\[?([\\d.]+)\\]? maps to .+");
 
     /**
@@ -47,7 +51,6 @@ public class SSHDataWrangler {
             printUsageAndExit(exception.getMessage());
         }
     }
-
 
     /**
      * Process command line arguments.
@@ -99,6 +102,11 @@ public class SSHDataWrangler {
         return arguments;
     }
 
+    /** Wrangles the raw SSH file into a more useful format.
+     * @param rawSshFile the path to the raw SSH log file
+     * @param sshFile the path to write the wrangled SSH log file
+     * @throws IOException if there is an error reading the raw SSH file or writing the wrangled file
+     */
     public static void wrangle(String rawSshFile, String sshFile) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(rawSshFile));
              BufferedWriter writer = new BufferedWriter(new FileWriter(sshFile))) {
@@ -113,6 +121,11 @@ public class SSHDataWrangler {
         }
     }
 
+    /** 
+     * Wrangles a single line from the raw SSH log file.
+     * @param rawLine the raw line from the SSH log file
+     * @return the wrangled line, or null if the line could not be wrangled
+     */
     public static String wrangleLine(String rawLine) {
         ParsedPrefix parsedPrefix = parsePrefix(rawLine);
         if (parsedPrefix == null) {
@@ -127,6 +140,11 @@ public class SSHDataWrangler {
         return parsedPrefix.date + " " + parsedPrefix.time + " " + activity;
     }
 
+    /** 
+     * Parses the prefix of a log line.
+     * @param rawLine the raw line from the SSH log file
+     * @return the parsed prefix, or null if the line could not be parsed
+     */
     private static ParsedPrefix parsePrefix(String rawLine) {
         String line = rawLine == null ? "" : rawLine.trim();
 
@@ -151,6 +169,11 @@ public class SSHDataWrangler {
         return null;
     }
 
+    /** 
+     * Parses the activity from a log line.
+     * @param message the message part of the log line
+     * @return the parsed activity, or null if the line could not be parsed
+     */
     private static String parseActivity(String message) {
         Matcher matcher = ACCEPTED.matcher(message);
         if (matcher.find()) {
@@ -185,6 +208,11 @@ public class SSHDataWrangler {
         return null;
     }
 
+    /** 
+     * Returns the correct month number associated with the given month string, or the original string if it is not a valid month.
+      * @param month the month string to convert
+      * @return the month number as a string, or the original string if it is not a valid month
+     */
     private static String monthNumber(String month) {
         String[] months = {
             "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -200,6 +228,12 @@ public class SSHDataWrangler {
         return month;
     }
 
+    /** 
+     * Converts the demo time to a standard format.
+     * @param time the time string to convert
+     * @param period the period (AM/PM) of the time
+     * @return the converted time string
+     */
     private static String convertDemoTime(String time, String period) {
         String[] parts = time.split(":");
         int hour = Integer.parseInt(parts[0]);
@@ -210,7 +244,6 @@ public class SSHDataWrangler {
         }
         return String.format("%02d:%s:00", hour, parts[1]);
     }
-
 
     /**
      * Print usage message and exit.
@@ -223,24 +256,29 @@ public class SSHDataWrangler {
         System.exit(1);
     }
 
+    /** inner class that holds the command-line arguments */
     public static class Arguments {
         private String rawSshFile;
         private String sshFile;
 
+        // returns the raw ssh file
         public String getRawSshFile() {
             return rawSshFile;
         }
 
+        // returns the parsed ssh file
         public String getSshFile() {
             return sshFile;
         }
     }
 
+    /** inner class that holds the parsed prefix information */
     private static final class ParsedPrefix {
         private final String date;
         private final String time;
         private final String message;
 
+        // constructor for the ParsedPrefix class
         private ParsedPrefix(String date, String time, String message) {
             this.date = date;
             this.time = time;

@@ -156,24 +156,27 @@ public class SSHCreateBTree {
 
         deleteIfExists(btreeFilename);
 
-        // Cache arguments are accepted for CLI compatibility with the project spec.
         BTree tree = new BTree(actualDegree, btreeFilename, arguments.isUseCache(), arguments.getCacheSize());
-        List<String> keys = SSHFileReader.readKeys(arguments.sshFile, arguments.type);
-        for (String key : keys) {
-            tree.insert(new TreeObject(key));
-        }
+        try {
+            List<String> keys = SSHFileReader.readKeys(arguments.sshFile, arguments.type);
+            for (String key : keys) {
+                tree.insert(new TreeObject(key));
+            }
 
-        List<TreeObject> sortedObjects = tree.getSortedObjects();
-        if (arguments.debug == 1) {
-            writeDumpFile(sortedObjects, arguments.type, arguments.requestedDegree);
-        }
+            List<TreeObject> sortedObjects = tree.getSortedObjects();
+            if (arguments.debug == 1) {
+                writeDumpFile(sortedObjects, arguments.type, arguments.requestedDegree);
+            }
 
-        if (arguments.writeDatabase) {
-            writeDatabase(sortedObjects, arguments.type);
-        }
+            if (arguments.writeDatabase) {
+                writeDatabase(sortedObjects, arguments.type);
+            }
 
-        if (arguments.useCache) {
-            System.out.println(tree.getCacheStats());
+            if (arguments.useCache) {
+                System.out.println(tree.getCacheStats());
+            }
+        } finally {
+            tree.close();
         }
     }
 
@@ -190,7 +193,11 @@ public class SSHCreateBTree {
 
     private static void writeDatabase(List<TreeObject> sortedObjects, String type) throws SQLException {
         SSHSearchDatabase database = new SSHSearchDatabase("SSHLogDB.db");
-        database.replaceTableContents(type.replace("-", ""), sortedObjects);
+        try {
+            database.replaceTableContents(type.replace("-", ""), sortedObjects);
+        } finally {
+            database.close();
+        }
     }
 
     private static void deleteIfExists(String path) throws IOException {

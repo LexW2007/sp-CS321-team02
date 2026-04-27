@@ -11,8 +11,12 @@ import java.util.ArrayList;
  * to read/write nodes from disk, and each node is represented by the BTreeNode class.
  * @author Lex Watts, Damian Skeen
  */
-public class BTree implements BTreeInterface
+public class BTree implements BTreeInterface, AutoCloseable
 {
+    private static final int METADATA_MAGIC = 0x42545245; // "BTRE"
+    private static final int METADATA_VERSION = 1;
+    private static final int METADATA_BYTES = 64;
+
     private int degree;
     private int maxKeys;
     private int maxChildren;
@@ -53,15 +57,12 @@ public class BTree implements BTreeInterface
             this.maxChildren = 2 * this.degree;
             this.nodeSize = computeNodeSize();
 
-            // Initialize cache if requested
-            this.useCache = useCache;
-            if (useCache && cacheSize > 0) {
-                this.cache = new Cache<>(cacheSize);
-            }
+            initializeCache(useCache, cacheSize);
 
             this.file = new RandomAccessFile(filename, "rw");
+            this.file.setLength(0);
 
-            this.nextFreeAddress = 0;
+            this.nextFreeAddress = METADATA_BYTES;
 
             BTreeNode root = new BTreeNode(this.degree, true);
             root.myAddress = allocateNodeAddress();
@@ -70,6 +71,7 @@ public class BTree implements BTreeInterface
             this.rootAddress = root.myAddress;
             this.numberOfNodes = 1;
             this.size = 0;
+            writeMetadata();
 
         } catch (IOException e) {
             throw new BTreeException("Error creating BTree");
@@ -78,6 +80,24 @@ public class BTree implements BTreeInterface
 
     public BTree(int degree, String filename) throws BTreeException {
         this(degree, filename, false, 0);
+    }
+
+    public BTree(String filename, boolean useCache, int cacheSize) throws BTreeException {
+        try {
+            initializeCache(useCache, cacheSize);
+            this.file = new RandomAccessFile(filename, "rw");
+            readMetadata();
+        } catch (IOException e) {
+            throw new BTreeException("Error opening BTree");
+        }
+    }
+
+    private void initializeCache(boolean useCache, int cacheSize) {
+        this.useCache = useCache;
+        this.cache = null;
+        if (useCache && cacheSize > 0) {
+            this.cache = new Cache<>(cacheSize);
+        }
     }
 
     /**
@@ -190,7 +210,7 @@ public class BTree implements BTreeInterface
         file.seek(address);
 
         ByteBuffer buffer = ByteBuffer.allocate(nodeSize);
-        file.read(buffer.array());
+        file.readFully(buffer.array());
 
         boolean isLeaf = buffer.get() == 1;
         buffer.get(new byte[3]); // padding
@@ -250,6 +270,51 @@ public class BTree implements BTreeInterface
         size += maxChildrenForDegree * Long.BYTES;
 
         return size;
+    }
+
+    private void writeMetadata() throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(METADATA_BYTES);
+        buffer.putInt(METADATA_MAGIC);
+        buffer.putInt(METADATA_VERSION);
+        buffer.putInt(degree);
+        buffer.putInt(nodeSize);
+        buffer.putLong(rootAddress);
+        buffer.putLong(nextFreeAddress);
+        buffer.putLong(size);
+        buffer.putLong(numberOfNodes);
+
+        file.seek(0);
+        file.write(buffer.array());
+    }
+
+    private void readMetadata() throws IOException, BTreeException {
+        if (file.length() < METADATA_BYTES) {
+            throw new BTreeException("BTree file is missing metadata");
+        }
+
+        ByteBuffer buffer = ByteBuffer.allocate(METADATA_BYTES);
+        file.seek(0);
+        file.readFully(buffer.array());
+
+        int magic = buffer.getInt();
+        int version = buffer.getInt();
+        if (magic != METADATA_MAGIC || version != METADATA_VERSION) {
+            throw new BTreeException("Unsupported BTree file format");
+        }
+
+        this.degree = buffer.getInt();
+        int storedNodeSize = buffer.getInt();
+        this.maxKeys = 2 * this.degree - 1;
+        this.maxChildren = 2 * this.degree;
+        this.nodeSize = computeNodeSize();
+        if (storedNodeSize != this.nodeSize) {
+            throw new BTreeException("BTree metadata does not match node layout");
+        }
+
+        this.rootAddress = buffer.getLong();
+        this.nextFreeAddress = buffer.getLong();
+        this.size = buffer.getLong();
+        this.numberOfNodes = buffer.getLong();
     }
 
     /** @inheritDoc */
@@ -326,6 +391,7 @@ public class BTree implements BTreeInterface
         }
 
         size++;
+        writeMetadata();
     }
 
     private boolean updateNodeContainingKey(long address, String key, TreeObject updated) throws IOException {
@@ -530,8 +596,8 @@ public class BTree implements BTreeInterface
     /** @inheritDoc */
     @Override
     public void delete(String key) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        // Delete support is outside this project's required B-Tree operations.
+        throw new UnsupportedOperationException("Delete is not supported");
     }
 
     /**
@@ -620,9 +686,17 @@ public class BTree implements BTreeInterface
     }
     // Cache stats method for testing and debugging
     public String getCacheStats() {
-        if (!useCache && cache != null) {
+        if (useCache && cache != null) {
             return cache.toString();
         }
         return "Cache is disabled.";
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (file != null) {
+            writeMetadata();
+            file.close();
+        }
     }
 }

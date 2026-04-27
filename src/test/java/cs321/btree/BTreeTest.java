@@ -275,6 +275,27 @@ public class BTreeTest {
 
     }
 
+    @Test
+    public void testSearchAfterReopeningTreeFile() throws BTreeException, IOException {
+
+        BTree b = new BTree(2, testFilename);
+        b.insert(new TreeObject("A"));
+        b.insert(new TreeObject("B"));
+        b.insert(new TreeObject("A"));
+        b.close();
+
+        BTree reopened = new BTree(testFilename, false, 0);
+        try {
+            TreeObject obj = reopened.search("A");
+
+            assertNotNull(obj);
+            assertEquals(2, obj.getCount());
+            assertEquals(2, reopened.getSize());
+        } finally {
+            reopened.close();
+        }
+    }
+
 
     /**
      * More complex search test for searching recursively.

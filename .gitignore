@@ -23,4 +23,5 @@ build/
 SSH*btree*
 !src/main/java/cs321/create/SSHCreateBTree.java
 !src/test/java/cs321/create/SSHCreateBTreeTest.java
+!src/main/java/cs321/search/SSHSearchBTree.java
 dumps/dump-*

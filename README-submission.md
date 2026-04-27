@@ -10,17 +10,17 @@
 
 How many of the dumpfiles matched (using the check-dump-files.sh script)?
 
-9 of 9 dumpfiles matched after installing OpenJDK 21 locally and rerunning the checkpoint-2 create
-workflow.
+9 of 9 dumpfiles matched using the provided `create-btrees.sh` and `check-dump-files.sh` scripts.
 
 How many of the btree query files results matched (using the check-btree-search.sh script)?
 
-Not run for checkpoint 2. `SSHSearchBTree` belongs to the later integration/final-deliverable work.
+9 of 9 full query files matched, and all 9 top-frequency checks passed using the provided
+`search-btrees.sh` and `check-btree-search.sh` scripts.
 
 How many of the database query files results matched (using the check-db-search.sh script)?
 
-Not run for checkpoint 2. `SSHSearchDatabase` belongs to the later integration/final-deliverable
-work.
+9 of 9 database query files matched using the provided `search-db.sh` and `check-db-search.sh`
+scripts.
 
 ### AWS Notes
 
@@ -63,12 +63,16 @@ I fixed them one step at a time.
 
 ## Additional Notes
 
-- Repo work completed for checkpoint 2 in this session:
+- Repo work completed:
   - Added `SSHCreateBTree` and supporting create-side log parsing.
   - Added `degree=0` support via optimal B-Tree degree resolution.
+  - Added persisted B-Tree metadata so B-Tree files can be reopened for search.
+  - Added `SSHSearchBTree` and completed top-frequency B-Tree query output.
+  - Completed `SSHSearchDatabase` top-frequency database search.
+  - Completed `BTree-Database-Analysis.md`.
   - Added focused unit tests for the checkpoint-2 create path.
-  - Installed OpenJDK 21 and verified the checkpoint-2 dumpfile outputs against the provided
-    reference results.
+  - Verified dump, B-Tree search, and database search outputs against the provided reference
+    results.
 - External/team inputs still required:
   - GitHub username for Damian Skeen
   - Weekly surveys / teammate evaluations

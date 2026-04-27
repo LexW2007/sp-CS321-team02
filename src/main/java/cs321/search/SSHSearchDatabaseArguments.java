@@ -1,63 +1,96 @@
 package cs321.search;
 
 import cs321.common.ParseArgumentException;
+import cs321.common.ParseArgumentUtils;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SSHSearchDatabaseArguments {
+    private static final Set<String> VALID_TYPES = new HashSet<String>(Arrays.asList(
+        "accepted-ip",
+        "accepted-time",
+        "invalid-ip",
+        "invalid-time",
+        "failed-ip",
+        "failed-time",
+        "reverseaddress-ip",
+        "reverseaddress-time",
+        "user-ip",
+        "test"
+    ));
+
+    private static final Set<Integer> VALID_TOP_FREQUENCIES = new HashSet<Integer>(Arrays.asList(10, 25, 50));
 
     private final String databaseFile;
-    private final String searchKey;
-    private final String tableName;
+    private final String type;
+    private final int topFrequency;
 
-    public SSHSearchDatabaseArguments(String databaseFile, String searchKey, String tableName) {
+    public SSHSearchDatabaseArguments(String databaseFile, String type, int topFrequency) {
         this.databaseFile = databaseFile;
-        this.searchKey = searchKey;
-        this.tableName = tableName;
+        this.type = type;
+        this.topFrequency = topFrequency;
     }
 
     public String getDatabaseFile() { return databaseFile; }
-    public String getSearchKey() { return searchKey; }
-    public String getTableName() { return tableName; }
+    public String getType() { return type; }
+    public int getTopFrequency() { return topFrequency; }
+    public String getTableName() { return type.replace("-", ""); }
 
     public static SSHSearchDatabaseArguments parse(String[] args) throws ParseArgumentException {
-        String dbFile = null;
-        String searchKey = null;
-        String table = null;
+        String databaseFile = null;
+        String type = null;
+        Integer topFrequency = null;
+        Set<String> seenArguments = new HashSet<String>();
 
         if (args == null || args.length == 0)
             throw new ParseArgumentException("No arguments provided.");
 
-        for (String a : args) {
-            if (!a.startsWith("--")) continue;
+        for (String argument : args) {
+            if (!argument.startsWith("--") || !argument.contains("=")) {
+                throw new ParseArgumentException("Expected arguments in the form --name=value");
+            }
 
-            String[] parts = a.substring(2).split("=", 2);
-            String k = parts[0].toLowerCase();
-            String v = parts.length > 1 ? parts[1] : "";
+            String[] parts = argument.substring(2).split("=", 2);
+            String key = parts[0];
+            String value = parts.length > 1 ? parts[1] : "";
 
-            switch (k) {
-                case "database-file":
-                    dbFile = v;
+            if (!seenArguments.add(key)) {
+                throw new ParseArgumentException("Duplicate argument provided: --" + key);
+            }
+
+            switch (key) {
+                case "database":
+                    databaseFile = value;
                     break;
-
-                case "search-key":
-                    searchKey = v;
+                case "type":
+                    if (!VALID_TYPES.contains(value)) {
+                        throw new ParseArgumentException("Unsupported tree type: " + value);
+                    }
+                    type = value;
                     break;
-
-                case "table":
-                    table = v;
+                case "top-frequency":
+                    topFrequency = ParseArgumentUtils.convertStringToInt(value);
+                    if (!VALID_TOP_FREQUENCIES.contains(topFrequency)) {
+                        throw new ParseArgumentException("--top-frequency must be one of 10, 25, or 50");
+                    }
                     break;
-
                 default:
-                    // ignore unknown flags
+                    throw new ParseArgumentException("Unknown argument: --" + key);
             }
         }
 
-        if (dbFile == null)
-            throw new ParseArgumentException("Missing required argument: --database-file");
-        if (searchKey == null)
-            throw new ParseArgumentException("Missing required argument: --search-key");
-        if (table == null)
-            throw new ParseArgumentException("Missing required argument: --table");
+        if (databaseFile == null || databaseFile.trim().isEmpty()) {
+            throw new ParseArgumentException("Missing required argument: --database");
+        }
+        if (type == null) {
+            throw new ParseArgumentException("Missing required argument: --type");
+        }
+        if (topFrequency == null) {
+            throw new ParseArgumentException("Missing required argument: --top-frequency");
+        }
 
-        return new SSHSearchDatabaseArguments(dbFile, searchKey, table);
+        return new SSHSearchDatabaseArguments(databaseFile, type, topFrequency);
     }
 }

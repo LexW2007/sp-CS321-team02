@@ -3,20 +3,30 @@
 | Last Name | First Name | GitHub User Name |
 |-----------|------------|------------------|
 | Watts     | Lennox     | LexW2007         |
-| TBD       | TBD        | TBD              |
-| TBD       | TBD        | TBD              |
+| Skeen     | Damian     | TBD              |
+| Dunkin    | Maclean    | Maclean-D        |
 
 ### Test Results
 
 How many of the dumpfiles matched (using the check-dump-files.sh script)?
 
+9 of 9 dumpfiles matched after installing OpenJDK 21 locally and rerunning the checkpoint-2 create
+workflow.
+
 How many of the btree query files results matched (using the check-btree-search.sh script)?
 
+Not run for checkpoint 2. `SSHSearchBTree` belongs to the later integration/final-deliverable work.
+
 How many of the database query files results matched (using the check-db-search.sh script)?
+
+Not run for checkpoint 2. `SSHSearchDatabase` belongs to the later integration/final-deliverable
+work.
 
 ### AWS Notes
 
 Brief reflection on your experience with running your code on AWS.
+
+Pending team input from the required AWS run and screenshots.
 
 ### Reflection
 
@@ -30,10 +40,38 @@ they overcame those challenges.
 
 ### AI Usage
 
+Cursor was used during checkpoint 2 to inspect the rubric and repository state, identify the
+missing `SSHCreateBTree` deliverable, implement the create-side parsing and wrangled-log extraction
+flow, add targeted checkpoint tests, and update repo-visible checkpoint documentation. The generated
+changes were reviewed against the project README and sample result files before being kept.
+
 ### Reflection (Team member name: Lex Watts)
 
-### Reflection (Team member name: )
+Learned how to create a fully functional B-Tree and how to use 
+SQL databases in tandem with my written B-Tree.
+I also learned proper ways to dump and retrieve file information.
 
-### Reflection (Team member name: )
+### Reflection (Team member name: Damian Skeen)
+
+Pending personal reflection from Damian Skeen.
+
+### Reflection (Team member name: Maclean Dunkin)
+
+I learned more about B-Trees and testing.
+Finding bugs was the hard part.
+I fixed them one step at a time.
 
 ## Additional Notes
+
+- Repo work completed for checkpoint 2 in this session:
+  - Added `SSHCreateBTree` and supporting create-side log parsing.
+  - Added `degree=0` support via optimal B-Tree degree resolution.
+  - Added focused unit tests for the checkpoint-2 create path.
+  - Installed OpenJDK 21 and verified the checkpoint-2 dumpfile outputs against the provided
+    reference results.
+- External/team inputs still required:
+  - GitHub username for Damian Skeen
+  - Weekly surveys / teammate evaluations
+  - AWS notes and screenshots
+  - Personal reflections for Damian Skeen
+- Java is now available in the shell via Homebrew OpenJDK 21 and persisted through `~/.zprofile`.

@@ -41,19 +41,19 @@ First Deliverable - Due at the end of Project Week 2: [50 points]
 
 Second Deliverable - Due at the end of Project Week 4: [50 points]
 	
-    -BTreeTest has all tests passing: [20 points]
+    -BTreeTest has all tests passing: [20 points] 20
 
-	-SSHCreateBtree has been written: [20 points]
+	-SSHCreateBtree has been written: [20 points] 20
 
     -Evidence of teamwork: [10 points]
     	-Scrum board, project log (should have more entries), evaluation by teammates via surveys
 
     Team Member 1:
-        Grade: /10
+        Grade: 10/10
     Team Member 2:
-        Grade: /10
+        Grade: 10/10
     Team Member 3:
-        Grade: /10
+        Grade: 10/10
 
 Final Deliverable - Due at the end of Project Week 5 [100 points]
 

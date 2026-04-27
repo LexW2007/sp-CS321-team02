@@ -94,18 +94,89 @@
 
 ---
 
-## Sprint 2 (Start - End, 2026)
+## Sprint 2 (Week of April 14 - April 19, 2026)
 
 ### Completed Tasks
 
-*To be filled in during Sprint 2*
+#### **Task 9 - Implement SSHCreateBTree driver**
+
+**Developer:** Team 02 (AI-assisted checkpoint session)
+**Issue:** n/a
+**Description:** Added the missing `SSHCreateBTree` entry point, command-line parsing, wrangled SSH
+log extraction by tree type, B-Tree creation, dump-file writing, and SQLite table output for the
+checkpoint-2 deliverable.
+**Commit Reference:** working tree (not yet committed)
+**Status:** Review/QA
 
 ---
 
-## Sprint 3 (Start - End, 2026)
+#### **Task 10 - Support optimum degree and repeatable database output**
+
+**Developer:** Team 02 (AI-assisted checkpoint session)
+**Issue:** n/a
+**Description:** Added support for `--degree=0` by resolving the largest degree that fits a
+4096-byte block and updated database output to replace table contents on repeated runs instead of
+accumulating duplicates.
+**Commit Reference:** working tree (not yet committed)
+**Status:** Review/QA
+
+---
+
+#### **Task 11 - Add focused checkpoint 2 tests**
+
+**Developer:** Team 02 (AI-assisted checkpoint session)
+**Issue:** n/a
+**Description:** Added targeted tests for create-side argument parsing, tree-type key extraction,
+`degree=0` resolution, and a small end-to-end create flow covering dump-file and database output.
+**Commit Reference:** working tree (not yet committed)
+**Status:** Review/QA
+
+---
+
+#### **Task 12 - Verification attempt and checkpoint notes**
+
+**Developer:** Team 02 (AI-assisted checkpoint session)
+**Issue:** n/a
+**Description:** Installed OpenJDK 21 for the local shell, reran `bash ./gradlew test`, rebuilt the
+create jar, and verified that all nine checkpoint-2 dump files match the provided reference output.
+**Commit Reference:** working tree (not yet committed)
+**Status:** Closed
+
+---
+
+---
+
+## Sprint 3 (Week of April 14 - April 19, 2026)
 
 ### Completed Tasks
 
-*To be filled in during Sprint 2*
+#### **Task 13 - Implement Cache 
+
+**Developer:** Damian Skeen ("Co-Pilot assisted")
+**Issue:** https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381788&issue=LexW2007%7Csp-CS321-team02%7C11
+**Description:** Implemented the cache from prject 1 into this project to improve performace and reduce disk reads. 
+**Commit Reference:** Commit 3032a34
+**Status:** In progress
+
+--- 
+
+#### **Task 14 - Pass All Integration Test Scripts 
+
+**Developer:** 
+**Issue:** https://github.com/users/LexW2007/projects/2?pane=issue&itemId=173381995&issue=LexW2007%7Csp-CS321-team02%7C14 
+**Description:** 
+**Commit Reference:** 
+**Status:** Open
+
+--- 
+
+#### **Task 15 - Write SSHDataWrangler 
+
+**Developer:** 
+**Issue:** 
+**Description:** 
+**Commit Reference:** 
+**Status:** Open
 
 ---
+

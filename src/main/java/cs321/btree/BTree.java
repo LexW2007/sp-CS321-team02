@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /** Class representing a B-Tree stored on disk. The B-Tree supports insertion of SSH keys and their counts,
  * as well as dumping the tree to a file or database. The B-Tree is implemented using a RandomAccessFile
  * to read/write nodes from disk, and each node is represented by the BTreeNode class.
- * @author Lex Watts
+ * @author Lex Watts, Damian Skeen
  */
 public class BTree implements BTreeInterface
 {
@@ -23,6 +23,10 @@ public class BTree implements BTreeInterface
     private long numberOfNodes;     // number of nodes created
     private RandomAccessFile file;
 
+    // cache fields
+    private boolean useCache;
+    private Cache<Long, BTreeNode> cache;
+
     
     /** Construct a BTree with the default degree (t = 2).
     * Used by testCreate() in BTreeTest.
@@ -30,7 +34,7 @@ public class BTree implements BTreeInterface
     * @throws BTreeException If the file cannot be created or written to.
     */
     public BTree(String filename) throws BTreeException {
-        this(2, filename); // default degree = 2
+        this(2, filename, false, 0); // default degree = 2
     }
 
      /** Construct a BTree with a specific degree.
@@ -38,20 +42,28 @@ public class BTree implements BTreeInterface
      * RandomAccessFile for disk storage, and Root node at address 0
      * @param degree Minimum degree t of the BTree.
      * @param filename File used for persistent storage.
+     * @param useCache Whether to enable in-memory caching of nodes.
+     * @param cacheSize Maximum number of nodes to keep in cache (ignored if useCache is false).
      * @throws BTreeException If any I/O error occurs.
      */
-    public BTree(int degree, String filename) throws BTreeException {
+    public BTree(int degree, String filename, boolean useCache, int cacheSize) throws BTreeException {
         try {
-            this.degree = degree;
-            this.maxKeys = 2 * degree - 1;
-            this.maxChildren = 2 * degree;
+            this.degree = resolveDegree(degree);
+            this.maxKeys = 2 * this.degree - 1;
+            this.maxChildren = 2 * this.degree;
             this.nodeSize = computeNodeSize();
+
+            // Initialize cache if requested
+            this.useCache = useCache;
+            if (useCache && cacheSize > 0) {
+                this.cache = new Cache<>(cacheSize);
+            }
 
             this.file = new RandomAccessFile(filename, "rw");
 
             this.nextFreeAddress = 0;
 
-            BTreeNode root = new BTreeNode(degree, true);
+            BTreeNode root = new BTreeNode(this.degree, true);
             root.myAddress = allocateNodeAddress();
             diskWrite(root);
 
@@ -64,14 +76,28 @@ public class BTree implements BTreeInterface
         }
     }
 
-    public BTree(int degree, int nodeSize) throws BTreeException {
-        this.degree = degree;
-        this.maxKeys = 2 * degree - 1;
-        this.maxChildren = 2 * degree;
-        this.nodeSize = nodeSize;
-        this.nextFreeAddress = 0;
-        this.numberOfNodes = 0;
-        this.size = 0;
+    /**
+     * Resolve a requested degree to the actual degree used internally.
+     * A request of 0 means "use the optimal degree that fits in one 4096-byte block".
+     *
+     * @param requestedDegree degree requested by the caller
+     * @return actual degree to use for the tree
+     * @throws BTreeException if the requested degree is invalid
+     */
+    public static int resolveDegree(int requestedDegree) throws BTreeException {
+        if (requestedDegree == 0) {
+            int optimalDegree = 2;
+            while (computeNodeSizeForDegree(optimalDegree + 1) <= 4096) {
+                optimalDegree++;
+            }
+            return optimalDegree;
+        }
+
+        if (requestedDegree < 2) {
+            throw new BTreeException("BTree degree must be 0 or at least 2");
+        }
+
+        return requestedDegree;
     }
 
      /** Allocate the next free byte offset in the file for a new node.
@@ -90,7 +116,7 @@ public class BTree implements BTreeInterface
      *   [3 bytes]  padding
      *   [4 bytes]  numKeys
      *   For each key slot (maxKeys):
-     *       [64 bytes] padded UTF-8 key string
+     *       [32 bytes] padded UTF-8 key string
      *       [8 bytes]  count
      *   For each child pointer (maxChildren):
      *       [8 bytes]  file offset of child node
@@ -98,6 +124,11 @@ public class BTree implements BTreeInterface
      * @throws IOException If writing to disk fails.
      */
     private void diskWrite(BTreeNode node) throws IOException {
+        // If caching is enabled, add to cache before writing to disk
+        if (useCache && cache != null) {
+            cache.add(node);
+        }
+        
         file.seek(node.myAddress);
 
         ByteBuffer buffer = ByteBuffer.allocate(nodeSize);
@@ -111,18 +142,18 @@ public class BTree implements BTreeInterface
         for (int i = 0; i < maxKeys; i++) {
             if (i < node.numKeys && node.keys[i] != null) {
 
-                // --- Write 64‑byte padded key ---
-                byte[] keyBytes = new byte[64];
+                // --- Write 32-byte padded key ---
+                byte[] keyBytes = new byte[32];
                 byte[] actual = node.keys[i].getKey().getBytes(java.nio.charset.StandardCharsets.UTF_8);
-                System.arraycopy(actual, 0, keyBytes, 0, Math.min(actual.length, 64));
+                System.arraycopy(actual, 0, keyBytes, 0, Math.min(actual.length, 32));
                 buffer.put(keyBytes);
 
                 // --- Write 8‑byte count ---
                 buffer.putLong(node.keys[i].getCount());
 
             } else {
-                // Empty slot → write 72 bytes of zeros
-                buffer.put(new byte[64]);  // empty key
+                // Empty slot -> write the empty key and count bytes
+                buffer.put(new byte[32]);  // empty key
                 buffer.putLong(0L);        // empty count
             }
         }
@@ -143,6 +174,15 @@ public class BTree implements BTreeInterface
      * @throws IOException If reading from disk fails.
      */
     private BTreeNode diskRead(long address) throws IOException {
+        //check cache first
+        if (useCache && cache != null) {
+            BTreeNode cachedNode = cache.get(address);
+            if (cachedNode != null) {
+                return cachedNode;
+            }
+        }
+        
+        // Not in cache, read from disk
         file.seek(address);
 
         ByteBuffer buffer = ByteBuffer.allocate(nodeSize);
@@ -159,8 +199,8 @@ public class BTree implements BTreeInterface
         // Read keys
         for (int i = 0; i < maxKeys; i++) {
 
-            // --- Read 64‑byte padded key ---
-            byte[] keyBytes = new byte[64];
+            // --- Read 32-byte padded key ---
+            byte[] keyBytes = new byte[32];
             buffer.get(keyBytes);
             String key = new String(keyBytes, java.nio.charset.StandardCharsets.UTF_8).trim();
 
@@ -177,22 +217,33 @@ public class BTree implements BTreeInterface
             node.children[i] = buffer.getLong();
         }
 
+        // Add to cache if enabled
+        if (useCache && cache != null) {
+            cache.add(node);
+        }
+
         return node;
     }
 
     /** Compute the fixed size (in bytes) of a serialized BTreeNode.
-     * This depends on: maxKeys (2t - 1), maxChildren (2t), and TreeObject.BYTES (72 bytes per key)
+     * This depends on: maxKeys (2t - 1), maxChildren (2t), and TreeObject.BYTES (40 bytes per key)
      * @return Total number of bytes required for one node.
      */
     private int computeNodeSize() {
+        return computeNodeSizeForDegree(degree);
+    }
+
+    private static int computeNodeSizeForDegree(int degree) {
+        int maxKeysForDegree = 2 * degree - 1;
+        int maxChildrenForDegree = 2 * degree;
         int size = 0;
 
         size += 1;  // isLeaf
         size += 3;  // padding
         size += 4;  // numKeys
 
-        size += maxKeys * TreeObject.BYTES; // 72 bytes per key (64 for key + 8 for count)
-        size += maxChildren * Long.BYTES;   // 8 bytes per child pointer
+        size += maxKeysForDegree * TreeObject.BYTES;
+        size += maxChildrenForDegree * Long.BYTES;
 
         return size;
     }
@@ -499,6 +550,23 @@ public class BTree implements BTreeInterface
     }
 
     /**
+     * Perform an inorder traversal of the B-Tree to retrieve all stored objects in sorted order.
+     *
+     * @return sorted list of TreeObjects from the tree
+     * @throws IOException if disk I/O fails
+     */
+    public ArrayList<TreeObject> getSortedObjects() throws IOException {
+        ArrayList<TreeObject> objects = new ArrayList<>();
+        if (size == 0) {
+            return objects;
+        }
+
+        BTreeNode root = diskRead(rootAddress);
+        inorderTraversalObjects(root, objects);
+        return objects;
+    }
+
+    /**
      * Recursive helper method for inorder traversal of the B-Tree. 
      * Visits left child, then key, then right child.
      * @param node
@@ -529,28 +597,28 @@ public class BTree implements BTreeInterface
         }
     }
 
-    public void inOrderTraversal(java.util.function.Consumer<TreeObject> visitor) throws IOException {
-        inOrderRecursive(rootAddress, visitor);
-    }
+    private void inorderTraversalObjects(BTreeNode node, ArrayList<TreeObject> objects) throws IOException {
+        int i;
 
-    private void inOrderRecursive(long nodeAddr, java.util.function.Consumer<TreeObject> visitor) throws IOException {
-        BTreeNode node = diskRead(nodeAddr);
-
-        for (int i = 0; i < node.numKeys; i++) {
-
-            // Visit left child
+        for (i = 0; i < node.numKeys; i++) {
             if (!node.isLeaf) {
-                inOrderRecursive(node.children[i], visitor);
+                BTreeNode child = diskRead(node.children[i]);
+                inorderTraversalObjects(child, objects);
             }
 
-            // Visit key (TreeObject)
-            visitor.accept(node.keys[i]);
-
+            objects.add(new TreeObject(node.keys[i].getKey(), node.keys[i].getCount()));
         }
 
-        // Visit last child
         if (!node.isLeaf) {
-            inOrderRecursive(node.children[node.numKeys], visitor);
+            BTreeNode child = diskRead(node.children[i]);
+            inorderTraversalObjects(child, objects);
         }
+    }
+    // Cache stats method for testing and debugging
+    public String getCacheStats() {
+        if (!useCache && cache != null) {
+            return cache.toString();
+        }
+        return "Cache is disabled.";
     }
 }

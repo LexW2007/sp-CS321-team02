@@ -64,6 +64,16 @@ public class BTree implements BTreeInterface
         }
     }
 
+    public BTree(int degree, int nodeSize) throws BTreeException {
+        this.degree = degree;
+        this.maxKeys = 2 * degree - 1;
+        this.maxChildren = 2 * degree;
+        this.nodeSize = nodeSize;
+        this.nextFreeAddress = 0;
+        this.numberOfNodes = 0;
+        this.size = 0;
+    }
+
      /** Allocate the next free byte offset in the file for a new node.
      * Nodes are fixed-size, so we simply advance by nodeSize.
      * @return The file offset where the new node should be written.
@@ -516,6 +526,31 @@ public class BTree implements BTreeInterface
         if (!node.isLeaf) {
             BTreeNode child = diskRead(node.children[i]);
             inorderTraversal(child, keys);
+        }
+    }
+
+    public void inOrderTraversal(java.util.function.Consumer<TreeObject> visitor) throws IOException {
+        inOrderRecursive(rootAddress, visitor);
+    }
+
+    private void inOrderRecursive(long nodeAddr, java.util.function.Consumer<TreeObject> visitor) throws IOException {
+        BTreeNode node = diskRead(nodeAddr);
+
+        for (int i = 0; i < node.numKeys; i++) {
+
+            // Visit left child
+            if (!node.isLeaf) {
+                inOrderRecursive(node.children[i], visitor);
+            }
+
+            // Visit key (TreeObject)
+            visitor.accept(node.keys[i]);
+
+        }
+
+        // Visit last child
+        if (!node.isLeaf) {
+            inOrderRecursive(node.children[node.numKeys], visitor);
         }
     }
 }

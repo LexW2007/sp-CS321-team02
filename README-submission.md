@@ -1,7 +1,5 @@
 # Team 02
 
-## Lex Watts, Damian Skeen, Maclean Dunkin
-
 | Last Name | First Name | GitHub User Name |
 |-----------|------------|------------------|
 | Watts     | Lennox     | LexW2007         |

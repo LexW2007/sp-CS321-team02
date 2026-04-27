@@ -14,7 +14,7 @@ public class BTreeException extends Exception {
      *
      * @param msg  Message to be displayed when this is called.
      */
-    BTreeException(String msg) {
+    public BTreeException(String msg) {
         super(msg);
     }
 }

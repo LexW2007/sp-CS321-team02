@@ -24,7 +24,7 @@ scripts.
 
 ### AWS Notes
 
-Pending team input from the required AWS run and screenshots.
+Configuring AWS proved to be quite challenging, but once it was running correctly. We were able to build correctly and pass all tests.
 
 ### AI Usage
 
@@ -64,6 +64,7 @@ I fixed them one step at a time.
   - Added focused unit tests for the checkpoint-2 create path.
   - Verified dump, B-Tree search, and database search outputs against the provided reference
     results.
+  - Set up AWS and ran our code in the cloud.
 - External/team inputs still required:
   - GitHub username for Damian Skeen
   - Weekly surveys / teammate evaluations

@@ -43,7 +43,9 @@ debug and test code funtionality.
 
 ### Reflection (Team member name: Damian Skeen)
 
-Pending personal reflection from Damian Skeen.
+Learned how to communicate and wrok off of others already written code.
+Learned how to implement a cache into a pre-existing system and test and debug the cache.
+Throughout the project became more comfortable using AI when I was stuck on debugging and when writing simple functions. 
 
 ### Reflection (Team member name: Maclean Dunkin)
 

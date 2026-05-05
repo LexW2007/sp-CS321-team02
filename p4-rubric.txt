@@ -1,11 +1,11 @@
 Team Name: Team 02
 
 Team Member 1: Lex Watts
-    Grade: /200
+    Grade: 165/200
 Team Member 2: Damian Skeen
-    Grade: /200
+    Grade: 140/200
 Team Member 3: Maclean Dunkin
-    Grade: /200
+    Grade: 130/200
 
 Rubric for the Cybersecurity-BTree group project
 
@@ -57,19 +57,22 @@ Second Deliverable - Due at the end of Project Week 4: [50 points]
 
 Final Deliverable - Due at the end of Project Week 5 [100 points]
 
-    -Integration testing: 
+    -Integration testing: 40
 		-create-btrees.sh, search-btrees.sh, and search-db.sh are working and producing appropriate
 		 output 
-		-check-dump-files.sh is passing: [15 points]
-		-check-btree-search.sh is passing: [5 points]
-		-check-db-search.sh is passing: [5 points]
+		-check-dump-files.sh is passing: [15 points]15
+		-check-btree-search.sh is passing: [5 points]5
+		-check-db-search.sh is passing: [5 points]5
 
-	-Used Cache to improve speed, and Cache Improved Speed: [15 points]
+	-Used Cache to improve speed, and Cache Improved Speed: [15 points] 10
+        Used Cache, but it did not improve the speed
 
 	-Used AWS to run tests (submit a screenshot of AWS console and the terminal on your AWS instance
-	 running the BTree create script): [10 points] [Required!]
+	 running the BTree create script): [10 points] [Required!] 5
+         Has screenshot, but it isn't running ./create-btrees.sh
 
-	-[Extra Credit] Write and test the data wrangler program in Java [+20 points]:
+	-[Extra Credit] Write and test the data wrangler program in Java [+20 points]:0
+        output log file does not match the expected
 
 Redux:
 	-If your team did not finish parts of the first two checkpoints but you finish them by
@@ -86,19 +89,20 @@ Teamwork: [50 points]
 	 project 4. This will be handled separately between the instructor and the team.
 
 
-    Team Member 1:
-        Grade: /50
-    Team Member 2:
-        Grade: /50
-    Team Member 3:
-        Grade: /50
+    Team Member 1: 15+35
+        Grade: 50/50
+    Team Member 2: 15+ 10
+        Grade: 25/50
+    Team Member 3: 15+ 10
+        Grade: 25/50
 
 
-Documentation:
+Documentation: (-10)
 	Documentation is a normal professional expectation so their are no points for doing
 	it! However, you may lose up to 25 points for not doing it properly. Here is what expect:
 
 	-README-submission.md file has appropriate sections filled out:
+        Reflections are terse and without discussion (-10)
 
 	-Appropriate Javadoc and inline comments:
 
